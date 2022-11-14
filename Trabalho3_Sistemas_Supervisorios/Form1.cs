@@ -15,6 +15,7 @@ using TitaniumAS.Opc.Client.Common;
 using TitaniumAS.Opc.Client.Da;
 using TitaniumAS.Opc.Client.Da.Browsing;
 using System.IO;
+using System.Reflection.Emit;
 
 namespace Trabalho3_Sistemas_Supervisorios
 {
@@ -26,6 +27,10 @@ namespace Trabalho3_Sistemas_Supervisorios
         {
 
             InitializeComponent();
+
+            AdjustControls();
+
+
             var path = Path.Combine(Environment.CurrentDirectory, "browseelements.txt");
 
             _debugStreamWriter = new System.IO.StreamWriter(path);
@@ -153,6 +158,16 @@ namespace Trabalho3_Sistemas_Supervisorios
                 // Output children of the element.
                 BrowseChildren(browser, element.ItemId, indent + 2);
             }
+        }
+
+        public void AdjustControls()
+        {
+
+            labelContadorDePecas.TextAlign = ContentAlignment.MiddleLeft;
+            labelContadorDePecas.Location = new Point((panel1.Width / 2 - labelContadorDePecas.Width / 2), labelContadorDePecas.Location.Y);
+
+            labelCountGeral.TextAlign = ContentAlignment.MiddleLeft;
+            labelCountGeral.Location = new Point((panel1.Width / 2 - labelCountGeral.Width / 2), labelCountGeral.Location.Y);
         }
     }
 }
