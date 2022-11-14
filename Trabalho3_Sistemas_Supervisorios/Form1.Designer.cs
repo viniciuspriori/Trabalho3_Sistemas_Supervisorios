@@ -39,11 +39,17 @@
             this.textBoxCountGeralTransp = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.textBoxCountGeralOpacas = new System.Windows.Forms.TextBox();
+            this.buttonStart = new System.Windows.Forms.Button();
+            this.buttonStop = new System.Windows.Forms.Button();
+            this.labelEstadoEsteira = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.labelEstadoEsteira);
+            this.panel1.Controls.Add(this.buttonStop);
+            this.panel1.Controls.Add(this.buttonStart);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.textBoxCountGeralTransp);
             this.panel1.Controls.Add(this.label2);
@@ -56,7 +62,7 @@
             this.panel1.Controls.Add(this.labelContadorDePecas);
             this.panel1.Location = new System.Drawing.Point(49, 26);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(364, 348);
+            this.panel1.Size = new System.Drawing.Size(364, 324);
             this.panel1.TabIndex = 0;
             // 
             // labelContadorDePecas
@@ -73,7 +79,7 @@
             // 
             this.labelCountGeral.AutoSize = true;
             this.labelCountGeral.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F);
-            this.labelCountGeral.Location = new System.Drawing.Point(38, 180);
+            this.labelCountGeral.Location = new System.Drawing.Point(38, 120);
             this.labelCountGeral.Name = "labelCountGeral";
             this.labelCountGeral.Size = new System.Drawing.Size(284, 29);
             this.labelCountGeral.TabIndex = 1;
@@ -116,7 +122,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(175, 237);
+            this.label1.Location = new System.Drawing.Point(175, 177);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(78, 13);
             this.label1.TabIndex = 9;
@@ -124,7 +130,7 @@
             // 
             // textBoxCountGeralTransp
             // 
-            this.textBoxCountGeralTransp.Location = new System.Drawing.Point(259, 234);
+            this.textBoxCountGeralTransp.Location = new System.Drawing.Point(259, 174);
             this.textBoxCountGeralTransp.Name = "textBoxCountGeralTransp";
             this.textBoxCountGeralTransp.ReadOnly = true;
             this.textBoxCountGeralTransp.Size = new System.Drawing.Size(72, 20);
@@ -133,7 +139,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(25, 237);
+            this.label2.Location = new System.Drawing.Point(25, 177);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(47, 13);
             this.label2.TabIndex = 7;
@@ -141,11 +147,38 @@
             // 
             // textBoxCountGeralOpacas
             // 
-            this.textBoxCountGeralOpacas.Location = new System.Drawing.Point(78, 234);
+            this.textBoxCountGeralOpacas.Location = new System.Drawing.Point(78, 174);
             this.textBoxCountGeralOpacas.Name = "textBoxCountGeralOpacas";
             this.textBoxCountGeralOpacas.ReadOnly = true;
             this.textBoxCountGeralOpacas.Size = new System.Drawing.Size(72, 20);
             this.textBoxCountGeralOpacas.TabIndex = 6;
+            // 
+            // buttonStart
+            // 
+            this.buttonStart.Location = new System.Drawing.Point(43, 265);
+            this.buttonStart.Name = "buttonStart";
+            this.buttonStart.Size = new System.Drawing.Size(107, 37);
+            this.buttonStart.TabIndex = 10;
+            this.buttonStart.Text = "Iniciar";
+            this.buttonStart.UseVisualStyleBackColor = true;
+            // 
+            // buttonStop
+            // 
+            this.buttonStop.Location = new System.Drawing.Point(215, 265);
+            this.buttonStop.Name = "buttonStop";
+            this.buttonStop.Size = new System.Drawing.Size(107, 37);
+            this.buttonStop.TabIndex = 11;
+            this.buttonStop.Text = "Parar";
+            this.buttonStop.UseVisualStyleBackColor = true;
+            // 
+            // labelEstadoEsteira
+            // 
+            this.labelEstadoEsteira.AutoSize = true;
+            this.labelEstadoEsteira.Location = new System.Drawing.Point(145, 235);
+            this.labelEstadoEsteira.Name = "labelEstadoEsteira";
+            this.labelEstadoEsteira.Size = new System.Drawing.Size(79, 13);
+            this.labelEstadoEsteira.TabIndex = 12;
+            this.labelEstadoEsteira.Text = "Esteira Parada.";
             // 
             // Form1
             // 
@@ -174,6 +207,9 @@
         private System.Windows.Forms.TextBox textBoxCountGeralTransp;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBoxCountGeralOpacas;
+        private System.Windows.Forms.Label labelEstadoEsteira;
+        private System.Windows.Forms.Button buttonStop;
+        private System.Windows.Forms.Button buttonStart;
     }
 }
 

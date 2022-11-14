@@ -168,6 +168,8 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             labelCountGeral.TextAlign = ContentAlignment.MiddleLeft;
             labelCountGeral.Location = new Point((panel1.Width / 2 - labelCountGeral.Width / 2), labelCountGeral.Location.Y);
+
+            labelEstadoEsteira.Location = new Point((panel1.Width / 2 - labelEstadoEsteira.Width / 2), labelEstadoEsteira.Location.Y);
         }
     }
 }
