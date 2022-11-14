@@ -28,7 +28,11 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             Bootstrap.Initialize();
 
-            var thread = new Thread(RunApplication);
+            var thread = new Thread(RunApplication)
+            {
+                Name = "RunApplicationThread",
+            };
+            
             thread.SetApartmentState(ApartmentState.STA);
 
             thread.Start();

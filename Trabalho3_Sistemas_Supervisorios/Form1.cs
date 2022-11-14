@@ -14,25 +14,30 @@ using TitaniumAS.Opc.Client.Interop.Common;
 using TitaniumAS.Opc.Client.Common;
 using TitaniumAS.Opc.Client.Da;
 using TitaniumAS.Opc.Client.Da.Browsing;
+using System.IO;
 
 namespace Trabalho3_Sistemas_Supervisorios
 {
     public partial class Form1 : Form
     {
         //private OpcDaServer _server;
+        private StreamWriter _debugStreamWriter;
         public Form1()
         {
 
             InitializeComponent();
+            var path = Path.Combine(Environment.CurrentDirectory, "browseelements.txt");
+
+            _debugStreamWriter = new System.IO.StreamWriter(path);
 
             StartProcedures();
         }
 
-        public bool IsConnected => _server.IsConnected;
+        //public bool IsConnected => _server.IsConnected;
 
         public void StartProcedures()
         {
-            Uri url = UrlBuilder.Build("Matrikon.OPC.Simulation.1");
+            Uri url = UrlBuilder.Build("Kepware.KEPServerEX.V6");
             using (var server = new OpcDaServer(url))
             {
                 // Connect to the server first.
@@ -42,8 +47,11 @@ namespace Trabalho3_Sistemas_Supervisorios
                 }
 
                 // Create a browser and browse all elements recursively.
-                var browser = new OpcDaBrowserAuto(server);
-                BrowseChildren(browser);
+                if (server.IsConnected)
+                {
+                    var browser = new OpcDaBrowserAuto(server);
+                    BrowseChildren(browser);
+                }
             }
 
             /// ----------GROUP----------- ///
@@ -130,12 +138,13 @@ namespace Trabalho3_Sistemas_Supervisorios
             // When itemId is null, root elements will be browsed.
             OpcDaBrowseElement[] elements = browser.GetElements(itemId);
 
+            
             // Output elements.
             foreach (OpcDaBrowseElement element in elements)
             {
                 // Output the element.
-                Console.Write(new String(' ', indent));
-                Console.WriteLine(element);
+                _debugStreamWriter.Write(new String(' ', indent));
+                _debugStreamWriter.WriteLine(element.Name);
 
                 // Skip elements without children.
                 if (!element.HasChildren)

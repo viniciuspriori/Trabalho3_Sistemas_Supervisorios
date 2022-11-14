@@ -28,13 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.richTextBoxElements = new System.Windows.Forms.RichTextBox();
+            this.SuspendLayout();
+            // 
+            // richTextBoxElements
+            // 
+            this.richTextBoxElements.AccessibleRole = System.Windows.Forms.AccessibleRole.Caret;
+            this.richTextBoxElements.Location = new System.Drawing.Point(36, 31);
+            this.richTextBoxElements.Name = "richTextBoxElements";
+            this.richTextBoxElements.ReadOnly = true;
+            this.richTextBoxElements.Size = new System.Drawing.Size(536, 337);
+            this.richTextBoxElements.TabIndex = 0;
+            this.richTextBoxElements.Text = "";
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.richTextBoxElements);
+            this.Name = "Form1";
             this.Text = "Form1";
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private System.Windows.Forms.RichTextBox richTextBoxElements;
     }
 }
 
