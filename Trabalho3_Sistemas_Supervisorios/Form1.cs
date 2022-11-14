@@ -21,15 +21,16 @@ namespace Trabalho3_Sistemas_Supervisorios
 {
     public partial class Form1 : Form
     {
-        //private OpcDaServer _server;
+        private OpcDaServer server;
         private StreamWriter _debugStreamWriter;
+
+        public const string deviceName = "Channel1.Device1";
         public Form1()
         {
 
             InitializeComponent();
 
             AdjustControls();
-
 
             var path = Path.Combine(Environment.CurrentDirectory, "browseelements.txt");
 
@@ -38,14 +39,14 @@ namespace Trabalho3_Sistemas_Supervisorios
             StartProcedures();
         }
 
-        //public bool IsConnected => _server.IsConnected;
-
         public void StartProcedures()
         {
-            Uri url = UrlBuilder.Build("Kepware.KEPServerEX.V6");
-            using (var server = new OpcDaServer(url))
-            {
-                // Connect to the server first.
+            Uri url = UrlBuilder.Build($"Kepware.KEPServerEX.V6/{deviceName}");
+            server = new OpcDaServer(url);
+            //using (var server = new OpcDaServer(url))
+            //{
+
+            // Connect to the server first.
                 if (!server.IsConnected)
                 {
                     TryConnect(server);
@@ -57,72 +58,71 @@ namespace Trabalho3_Sistemas_Supervisorios
                     var browser = new OpcDaBrowserAuto(server);
                     BrowseChildren(browser);
                 }
-            }
+            //}
 
             /// ----------GROUP----------- ///
-            //// Create a group with items.
-            //OpcDaGroup group = server.AddGroup("MyGroup");
-            //group.IsActive = true;
+            // Create a group with items.
+            OpcDaGroup group = server.AddGroup("MyGroup");
+            group.IsActive = true;
 
-            //var definition1 = new OpcDaItemDefinition
-            //{
-            //    ItemId = "Random.Int2",
-            //    IsActive = true
-            //};
-            //var definition2 = new OpcDaItemDefinition
-            //{
-            //    ItemId = "Bucket Brigade.Int4",
-            //    IsActive = true
-            //};
-            //OpcDaItemDefinition[] definitions = { definition1, definition2 };
-            //OpcDaItemResult[] results = group.AddItems(definitions);
+            var definition1 = new OpcDaItemDefinition
+            {
+                ItemId = $"{deviceName}.Busy",
+                IsActive = true
+            };
+            var definition2 = new OpcDaItemDefinition
+            {
+                ItemId = $"{deviceName}.Emergency",
+                IsActive = true
+            };
+            OpcDaItemDefinition[] definitions = { definition1, definition2 };
+            OpcDaItemResult[] results = group.AddItems(definitions);
 
             //// Handle adding results.
-            //foreach (OpcDaItemResult result in results)
-            //{
-            //    if (result.Error.Failed)
-            //        Console.WriteLine("Error adding items: {0}", result.Error);
-            //}
+            foreach (OpcDaItemResult result in results)
+            {
+                if (result.Error.Failed)
+                    MessageBox.Show($"Error adding items: {result.Error}");
+            }
 
             /// ----------- READ ------------ ///
 
-            // Read all items of the group synchronously.
-            //OpcDaItemValue[] values = group.Read(group.Items, OpcDaDataSource.Device);
+            //Read all items of the group synchronously.
+            OpcDaItemValue[] values = group.Read(group.Items, OpcDaDataSource.Device);
 
-            // Read all items of the group asynchronously.
+            //Read all items of the group asynchronously.
             //OpcDaItemValue[] values = await group.ReadAsync(group.Items);
 
-            /// ----------- WRITE ------------ ///
-            //// Prepare items.
-            //OpcDaItem int2 = group.Items.FirstOrDefault(i => i.ItemId == "Bucket Brigade.Int2");
-            //OpcDaItem int4 = group.Items.FirstOrDefault(i => i.ItemId == "Bucket Brigade.Int4");
-            //OpcDaItem[] items = { int2, int4 };
+            // -----------WRITE------------ ///
+            // Prepare items.
+            OpcDaItem boolBusy = group.Items.FirstOrDefault(i => i.ItemId == $"{deviceName}.Busy");
+            OpcDaItem boolEmergency = group.Items.FirstOrDefault(i => i.ItemId == $"{deviceName}.Emergency");
+            OpcDaItem[] items = { boolBusy, boolEmergency };
 
-            //// Write values to the items synchronously.
-            //object[] values = { 1, 2 };
-            //HRESULT[] results = group.Write(items, values);
+            // Write values to the items synchronously.
+            object[] values1 = { true, true };
+            HRESULT[] results1 = group.Write(items, values1);
 
-            //// Write values to the items asynchronously.
-            //object[] values = { 3, 4 };
-            //HRESULT[] results = await group.WriteAsync(items, values);
+            // Write values to the items asynchronously.
+            //object[] values2 = { 3, 4 };
+            //HRESULT[] results2 = await group.WriteAsync(items, values);
 
             /// ----------- SUBSCRIPTION ------------ ///
-            //// Configure subscription.
-            //group.ValuesChanged += OnGroupValuesChanged;
-            //group.UpdateRate = TimeSpan.FromMilliseconds(100); // ValuesChanged won't be triggered if zero
-
-            //static void OnGroupValuesChanged(object sender, OpcDaItemValuesChangedEventArgs args)
-            //{
-            //    // Output values.
-            //    foreach (OpcDaItemValue value in args.Values)
-            //    {
-            //        Console.WriteLine("ItemId: {0}; Value: {1}; Quality: {2}; Timestamp: {3}",
-            //            value.Item.ItemId, value.Value, value.Quality, value.Timestamp);
-            //    }
-            //}
+            // Configure subscription.
+            group.ValuesChanged += OnGroupValuesChanged;
+            group.UpdateRate = TimeSpan.FromMilliseconds(100); // ValuesChanged won't be triggered if zero
+            
 
         }
-
+        static void OnGroupValuesChanged(object sender, OpcDaItemValuesChangedEventArgs args)
+        {
+            // Output values.
+            foreach (OpcDaItemValue value in args.Values)
+            {
+                Console.WriteLine("ItemId: {0}; Value: {1}; Quality: {2}; Timestamp: {3}",
+                    value.Item.ItemId, value.Value, value.Quality, value.Timestamp);
+            }
+        }
         public void TryConnect(OpcDaServer server)
         {
             try
