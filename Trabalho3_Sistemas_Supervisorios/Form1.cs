@@ -16,6 +16,8 @@ using TitaniumAS.Opc.Client.Da;
 using TitaniumAS.Opc.Client.Da.Browsing;
 using System.IO;
 using System.Reflection.Emit;
+using System.Drawing.Text;
+using Timer = System.Windows.Forms.Timer;
 
 namespace Trabalho3_Sistemas_Supervisorios
 {
@@ -27,9 +29,7 @@ namespace Trabalho3_Sistemas_Supervisorios
         public const string deviceName = "Channel1.Device1";
         public Form1()
         {
-
             InitializeComponent();
-
             AdjustControls();
 
             var path = Path.Combine(Environment.CurrentDirectory, "browseelements.txt");
@@ -47,17 +47,17 @@ namespace Trabalho3_Sistemas_Supervisorios
             //{
 
             // Connect to the server first.
-                if (!server.IsConnected)
-                {
-                    TryConnect(server);
-                }
+            if (!server.IsConnected)
+            {
+                TryConnect(server);
+            }
 
-                // Create a browser and browse all elements recursively.
-                if (server.IsConnected)
-                {
-                    var browser = new OpcDaBrowserAuto(server);
-                    BrowseChildren(browser);
-                }
+            // Create a browser and browse all elements recursively.
+            if (server.IsConnected)
+            {
+                var browser = new OpcDaBrowserAuto(server);
+                BrowseChildren(browser);
+            }
             //}
 
             /// ----------GROUP----------- ///
@@ -111,18 +111,35 @@ namespace Trabalho3_Sistemas_Supervisorios
             // Configure subscription.
             group.ValuesChanged += OnGroupValuesChanged;
             group.UpdateRate = TimeSpan.FromMilliseconds(100); // ValuesChanged won't be triggered if zero
-            
 
+            var timer = new Timer()
+            {
+                Interval = 500
+             };
+            timer.Start();
+            timer.Tick += Timer_Tick;
         }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            textBoxCountOpacas.Text = _textbox;
+        }
+
+        private static string _textbox;
         static void OnGroupValuesChanged(object sender, OpcDaItemValuesChangedEventArgs args)
         {
             // Output values.
             foreach (OpcDaItemValue value in args.Values)
             {
-                Console.WriteLine("ItemId: {0}; Value: {1}; Quality: {2}; Timestamp: {3}",
-                    value.Item.ItemId, value.Value, value.Quality, value.Timestamp);
+                if(value.Item.ItemId == $"{deviceName}.Emergency")
+                {
+                    _textbox = value.Value.ToString();
+                }
+                //Console.WriteLine("ItemId: {0}; Value: {1}; Quality: {2}; Timestamp: {3}",
+                //    value.Item.ItemId, value.Value, value.Quality, value.Timestamp);
             }
         }
+        
         public void TryConnect(OpcDaServer server)
         {
             try
