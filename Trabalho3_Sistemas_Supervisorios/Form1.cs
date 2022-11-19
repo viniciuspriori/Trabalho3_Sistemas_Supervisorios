@@ -24,10 +24,12 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         ConfigModel configModel;
         JsonSerializer jsonSerializer;
-        string path = Path.Combine(Environment.CurrentDirectory, "configModel.json");
+        string _modelPath = Path.Combine(Environment.CurrentDirectory, "configModel.json");
+        string _loggerFolder = Path.Combine(Environment.CurrentDirectory);
         OpcDaGroup group;
         bool wStart, wReset = false;
         Timer timer;
+        private ReadThread readRoutine;
 
         public Form1()
         {
@@ -43,6 +45,8 @@ namespace Trabalho3_Sistemas_Supervisorios
             StartProcedures();
 
             ConfigureTimer();
+
+            Logger.AddSingleLog(0, "App started", DateTime.Now, Logger.Status.Normal);
         }
 
         public void ConfigureTimer()
@@ -88,7 +92,7 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             /// ----------- READ ------------ ///
             //Read all items of the group synchronously.
-            ReadThread readRoutine = new ReadThread(group);
+            readRoutine = new ReadThread(group);
             readRoutine.OnReadGroup += ReadRoutine_OnReadGroup;
             // OpcDaItemValue[] values = group.Read(group.Items, OpcDaDataSource.Device);
 
@@ -103,9 +107,12 @@ namespace Trabalho3_Sistemas_Supervisorios
             //HRESULT[] results2 = await group.WriteAsync(items, values);
         }
 
-        private void ReadRoutine_OnReadGroup(object sender, OpcDaItemValue[] e)
+        private void ReadRoutine_OnReadGroup(object sender, OpcDaItemValue[] values)
         {
-            var x = e;
+            var valuesList = values.ToList();
+            var error = valuesList.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_ERROR", false)}");
+            //var deb = x.Value;
+            //cast.Where(i => i.Item.ItemId == )
         }
 
         public void CreateGroup()
@@ -210,9 +217,9 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         public ConfigModel OpenConfigModel()
         {
-            if (File.Exists(path) && new FileInfo(path).Length > 0)
+            if (File.Exists(_modelPath) && new FileInfo(_modelPath).Length > 0)
             {
-                using (StreamReader file = File.OpenText(path))
+                using (StreamReader file = File.OpenText(_modelPath))
                 using (JsonTextReader reader = new JsonTextReader(file))
                 {
                     JObject config = (JObject)JToken.ReadFrom(reader);
@@ -231,24 +238,32 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         private async void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            await SaveConfigModel().ConfigureAwait(true);
+            readRoutine.IsRunning = false;
+
+            var taskModel = SaveConfigModel();
+            var taskLogger = Logger.SaveAsync(_loggerFolder);
+            //Logger.Save(_loggerFolder);
+
+            await Task.WhenAll(taskModel, taskLogger);
 
             Environment.Exit(0);
         }
 
+
         public async Task SaveConfigModel()
         {
-            using (StreamWriter sw = new StreamWriter(path))
+            using (StreamWriter sw = new StreamWriter(_modelPath))
             {
-                using (JsonWriter writer = new JsonTextWriter(sw))
-                {
+                //using (JsonWriter writer = new JsonTextWriter(sw))
+                //{
                    // jsonSerializer.Serialize(writer, configModel);
                     var str = JsonConvert.SerializeObject(configModel, Formatting.Indented);
                     sw.Write(str);
-                }
+                //}
             }
 
-            await Task.Delay(2000);
+
+            await Task.Delay(500);
         }
 
         public void AdjustControls()
