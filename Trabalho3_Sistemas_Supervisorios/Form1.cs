@@ -1,55 +1,66 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TitaniumAS.Opc.Client;
-using static TitaniumAS.Opc.Client.Interop.Common.Interop;
-using TitaniumAS.Opc.Client.Interop.Common;
 using TitaniumAS.Opc.Client.Common;
 using TitaniumAS.Opc.Client.Da;
 using TitaniumAS.Opc.Client.Da.Browsing;
 using System.IO;
-using System.Reflection.Emit;
-using System.Drawing.Text;
-using Timer = System.Windows.Forms.Timer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Timer = System.Windows.Forms.Timer;
 
 namespace Trabalho3_Sistemas_Supervisorios
 {
     public partial class Form1 : Form
     {
         private OpcDaServer server;
-        private StreamWriter _debugStreamWriter;
+        //private StreamWriter _debugStreamWriter;
 
-        public const string deviceName = "Channel1.Device1";
         ConfigModel configModel;
         JsonSerializer jsonSerializer;
         string path = Path.Combine(Environment.CurrentDirectory, "configModel.json");
+        OpcDaGroup group;
+        bool wStart, wReset = false;
+        Timer timer;
 
         public Form1()
         {
             InitializeComponent();
-            AdjustControls();
 
             jsonSerializer = new JsonSerializer();
-
             configModel = new ConfigModel();
             configModel.Default();
 
             configModel = OpenConfigModel();
-
-            var path = Path.Combine(Environment.CurrentDirectory, "browseelements.txt");
-
-            _debugStreamWriter = new System.IO.StreamWriter(path);
+            //var path = Path.Combine(Environment.CurrentDirectory, "browseelements.txt");
+            //_debugStreamWriter = new System.IO.StreamWriter(path);
 
             StartProcedures();
+
+            ConfigureTimer();
+        }
+
+        public void ConfigureTimer()
+        {
+            timer = new Timer();
+            timer.Interval = 500;
+            timer.Tick += Timer_OPC_Tick;
+            timer.Start();
+        }
+
+        private void Timer_OPC_Tick(object sender, EventArgs e)
+        {
+            var writeItems = GetWriteItems();
+
+            object[] values  = { wStart, wReset };
+            
+            HRESULT[] results = group.Write(writeItems, values);
         }
 
         public void StartProcedures()
@@ -68,14 +79,14 @@ namespace Trabalho3_Sistemas_Supervisorios
             // Create a browser and browse all elements recursively.
             if (server.IsConnected)
             {
-                var browser = new OpcDaBrowserAuto(server);
-                BrowseChildren(browser);
+                //var browser = new OpcDaBrowserAuto(server);
+                //BrowseChildren(browser);
             }
             //}
 
             /// ----------GROUP----------- ///
             // Create a group with items.
-            OpcDaGroup group = server.AddGroup("MyGroup");
+            group = server.AddGroup("MyGroup");
             group.IsActive = true;
 
             var fullDictionary = new Dictionary<string, string>();
@@ -91,7 +102,7 @@ namespace Trabalho3_Sistemas_Supervisorios
                 listDefintions.Add(
                     new OpcDaItemDefinition
                     {
-                        ItemId = $"{deviceName}.{item.Value}",
+                        ItemId = $"{configModel.DeviceName}.{item.Value}",
                         IsActive = true
                     });
             }
@@ -112,13 +123,22 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             OpcDaItemResult[] results = group.AddItems(listDefintions);
 
+            var count = 0;
             //// Handle adding results.
             foreach (OpcDaItemResult result in results)
             {
+                count++;
                 if (result.Error.Failed)
-                    MessageBox.Show($"Error adding items: {result.Error}");
+                {
+                    var debug = GetWriteItems().Where(x => x is null).ToList();
+                    if (debug.Count > 0) //only remove if its write group because it crashes the application
+                    {
+                        group.RemoveItems(debug);
+                    }
+                    MessageBox.Show($"{result.Error}", "Application will close");
+                    //Environment.Exit(0);
+                }
             }
-
             /// ----------- READ ------------ ///
 
             //Read all items of the group synchronously.
@@ -129,34 +149,20 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             // -----------WRITE------------ ///
             // Prepare items.
-            OpcDaItem boolStart = group.Items.FirstOrDefault(i => i.ItemId == $"{deviceName}.{configModel.ReturnItem("BOOL_START", false)}");
-            OpcDaItem boolReset = group.Items.FirstOrDefault(i => i.ItemId == $"{deviceName}.{configModel.ReturnItem("BOOL_RESET", false)}");
-            OpcDaItem[] items = { boolStart, boolReset };
-
             // Write values to the items synchronously.
-            object[] values1 = { true, true };
-            HRESULT[] results1 = group.Write(items, values1);
-
             // Write values to the items asynchronously.
             //object[] values2 = { 3, 4 };
             //HRESULT[] results2 = await group.WriteAsync(items, values);
-
-            var timer = new Timer()
-            {
-                Interval = 500
-             };
-            timer.Start();
-            timer.Tick += Timer_Tick;
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private List<OpcDaItem> GetWriteItems() 
         {
-            textBoxCountOpacas.Text = _textbox;
+            OpcDaItem boolStart = group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_START", false)}");
+            OpcDaItem boolReset = group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_RESET", false)}");
+
+            return new List<OpcDaItem> { boolStart, boolReset };
         }
 
-        private static string _textbox;
-
-        
         public void TryConnect(OpcDaServer server)
         {
             try
@@ -169,8 +175,6 @@ namespace Trabalho3_Sistemas_Supervisorios
                 MessageBox.Show(e.Message);
             }
         }
-
-        
 
         void BrowseChildren(IOpcDaBrowser browser, string itemId = null, int indent = 0)
         {
@@ -192,17 +196,6 @@ namespace Trabalho3_Sistemas_Supervisorios
                 // Output children of the element.
                 BrowseChildren(browser, element.ItemId, indent + 2);
             }
-        }
-
-        public void AdjustControls()
-        {
-            labelContadorDePecas.TextAlign = ContentAlignment.MiddleLeft;
-            labelContadorDePecas.Location = new Point((panel1.Width / 2 - labelContadorDePecas.Width / 2), labelContadorDePecas.Location.Y);
-
-            labelCountGeral.TextAlign = ContentAlignment.MiddleLeft;
-            labelCountGeral.Location = new Point((panel1.Width / 2 - labelCountGeral.Width / 2), labelCountGeral.Location.Y);
-
-            labelEstadoEsteira.Location = new Point((panel1.Width / 2 - labelEstadoEsteira.Width / 2), labelEstadoEsteira.Location.Y);
         }
 
         public ConfigModel OpenConfigModel()
@@ -239,16 +232,37 @@ namespace Trabalho3_Sistemas_Supervisorios
             {
                 using (JsonWriter writer = new JsonTextWriter(sw))
                 {
-                    jsonSerializer.Serialize(writer, configModel);
+                   // jsonSerializer.Serialize(writer, configModel);
+                    var str = JsonConvert.SerializeObject(configModel, Formatting.Indented);
+                    sw.Write(str);
                 }
             }
 
             await Task.Delay(2000);
         }
 
+        public void AdjustControls()
+        {
+            labelContadorDePecas.TextAlign = ContentAlignment.MiddleLeft;
+            labelContadorDePecas.Location = new Point((panel1.Width / 2 - labelContadorDePecas.Width / 2), labelContadorDePecas.Location.Y);
+
+            labelCountGeral.TextAlign = ContentAlignment.MiddleLeft;
+            labelCountGeral.Location = new Point((panel1.Width / 2 - labelCountGeral.Width / 2), labelCountGeral.Location.Y);
+
+            labelEstadoEsteira.Location = new Point((panel1.Width / 2 - labelEstadoEsteira.Width / 2), labelEstadoEsteira.Location.Y);
+        }
+
+        private void buttonStart_Click(object sender, EventArgs e)
+        {
+            wStart = !wStart;
+        }
+
+        private void buttonReset_Click(object sender, EventArgs e)
+        {
+            wReset = !wReset;
+        }
 
         //DEPRECATED
-
         //static void OnGroupValuesChanged(object sender, OpcDaItemValuesChangedEventArgs args)
         //{
         //    // Output values.
@@ -262,7 +276,6 @@ namespace Trabalho3_Sistemas_Supervisorios
         //        //    value.Item.ItemId, value.Value, value.Quality, value.Timestamp);
         //    }
         //}
-
 
         /// ----------- SUBSCRIPTION ------------ ///
         // Configure subscription.

@@ -30,7 +30,7 @@
         {
             this.panel1 = new System.Windows.Forms.Panel();
             this.labelEstadoEsteira = new System.Windows.Forms.Label();
-            this.buttonStop = new System.Windows.Forms.Button();
+            this.buttonReset = new System.Windows.Forms.Button();
             this.buttonStart = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.textBoxCountGeralTransp = new System.Windows.Forms.TextBox();
@@ -48,7 +48,7 @@
             // panel1
             // 
             this.panel1.Controls.Add(this.labelEstadoEsteira);
-            this.panel1.Controls.Add(this.buttonStop);
+            this.panel1.Controls.Add(this.buttonReset);
             this.panel1.Controls.Add(this.buttonStart);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.textBoxCountGeralTransp);
@@ -74,14 +74,15 @@
             this.labelEstadoEsteira.TabIndex = 12;
             this.labelEstadoEsteira.Text = "Esteira Parada.";
             // 
-            // buttonStop
+            // buttonReset
             // 
-            this.buttonStop.Location = new System.Drawing.Point(215, 265);
-            this.buttonStop.Name = "buttonStop";
-            this.buttonStop.Size = new System.Drawing.Size(107, 37);
-            this.buttonStop.TabIndex = 11;
-            this.buttonStop.Text = "Parar";
-            this.buttonStop.UseVisualStyleBackColor = true;
+            this.buttonReset.Location = new System.Drawing.Point(215, 265);
+            this.buttonReset.Name = "buttonReset";
+            this.buttonReset.Size = new System.Drawing.Size(107, 37);
+            this.buttonReset.TabIndex = 11;
+            this.buttonReset.Text = "Reset";
+            this.buttonReset.UseVisualStyleBackColor = true;
+            this.buttonReset.Click += new System.EventHandler(this.buttonReset_Click);
             // 
             // buttonStart
             // 
@@ -91,6 +92,7 @@
             this.buttonStart.TabIndex = 10;
             this.buttonStart.Text = "Iniciar";
             this.buttonStart.UseVisualStyleBackColor = true;
+            this.buttonStart.Click += new System.EventHandler(this.buttonStart_Click);
             // 
             // label1
             // 
@@ -209,7 +211,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBoxCountGeralOpacas;
         private System.Windows.Forms.Label labelEstadoEsteira;
-        private System.Windows.Forms.Button buttonStop;
+        private System.Windows.Forms.Button buttonReset;
         private System.Windows.Forms.Button buttonStart;
     }
 }
