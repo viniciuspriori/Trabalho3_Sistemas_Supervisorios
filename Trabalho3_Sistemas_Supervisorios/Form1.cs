@@ -36,7 +36,6 @@ namespace Trabalho3_Sistemas_Supervisorios
             jsonSerializer = new JsonSerializer();
             configModel = new ConfigModel();
             configModel.Default();
-
             configModel = OpenConfigModel();
             //var path = Path.Combine(Environment.CurrentDirectory, "browseelements.txt");
             //_debugStreamWriter = new System.IO.StreamWriter(path);
@@ -85,6 +84,32 @@ namespace Trabalho3_Sistemas_Supervisorios
             //}
 
             /// ----------GROUP----------- ///
+            CreateGroup();
+
+            /// ----------- READ ------------ ///
+            //Read all items of the group synchronously.
+            ReadThread readRoutine = new ReadThread(group);
+            readRoutine.OnReadGroup += ReadRoutine_OnReadGroup;
+            // OpcDaItemValue[] values = group.Read(group.Items, OpcDaDataSource.Device);
+
+            //Read all items of the group asynchronously.
+            // OpcDaItemValue[] values = await group.ReadAsync(group.Items);
+
+            // -----------WRITE------------ ///
+            // Prepare items.
+            // Write values to the items synchronously.
+            // Write values to the items asynchronously.
+            //object[] values2 = { 3, 4 };
+            //HRESULT[] results2 = await group.WriteAsync(items, values);
+        }
+
+        private void ReadRoutine_OnReadGroup(object sender, OpcDaItemValue[] e)
+        {
+            var x = e;
+        }
+
+        public void CreateGroup()
+        {
             // Create a group with items.
             group = server.AddGroup("MyGroup");
             group.IsActive = true;
@@ -123,44 +148,29 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             OpcDaItemResult[] results = group.AddItems(listDefintions);
 
-            var count = 0;
             //// Handle adding results.
             foreach (OpcDaItemResult result in results)
             {
-                count++;
                 if (result.Error.Failed)
-                {
-                    var debug = GetWriteItems().Where(x => x is null).ToList();
-                    if (debug.Count > 0) //only remove if its write group because it crashes the application
-                    {
-                        group.RemoveItems(debug);
-                    }
+                {                    
                     MessageBox.Show($"{result.Error}", "Application will close");
                     //Environment.Exit(0);
                 }
             }
-            /// ----------- READ ------------ ///
-
-            //Read all items of the group synchronously.
-            OpcDaItemValue[] values = group.Read(group.Items, OpcDaDataSource.Device);
-
-            //Read all items of the group asynchronously.
-            //OpcDaItemValue[] values = await group.ReadAsync(group.Items);
-
-            // -----------WRITE------------ ///
-            // Prepare items.
-            // Write values to the items synchronously.
-            // Write values to the items asynchronously.
-            //object[] values2 = { 3, 4 };
-            //HRESULT[] results2 = await group.WriteAsync(items, values);
         }
 
         private List<OpcDaItem> GetWriteItems() 
         {
-            OpcDaItem boolStart = group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_START", false)}");
-            OpcDaItem boolReset = group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_RESET", false)}");
+            var list = new List<OpcDaItem>()
+            {
+                group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_START", false)}"),
+                group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_RESET", false)}")
+            };
+             
+            //OpcDaItem boolStart = group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_START", false)}");
+            //OpcDaItem boolReset = group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_RESET", false)}");
 
-            return new List<OpcDaItem> { boolStart, boolReset };
+            return list.Where(i => i != null).ToList();
         }
 
         public void TryConnect(OpcDaServer server)
@@ -186,8 +196,8 @@ namespace Trabalho3_Sistemas_Supervisorios
             foreach (OpcDaBrowseElement element in elements)
             {
                 // Output the element.
-                _debugStreamWriter.Write(new String(' ', indent));
-                _debugStreamWriter.WriteLine(element.Name);
+                //_debugStreamWriter.Write(new String(' ', indent));
+                //_debugStreamWriter.WriteLine(element.Name);
 
                 // Skip elements without children.
                 if (!element.HasChildren)
