@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Trabalho3_Sistemas_Supervisorios
+namespace Trabalho3_Sistemas_Supervisorios.Config
 {
     public class ConfigModel
     {

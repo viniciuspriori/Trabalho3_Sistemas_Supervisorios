@@ -7,8 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using TitaniumAS.Opc.Client.Common;
 using TitaniumAS.Opc.Client.Da;
+using Trabalho3_Sistemas_Supervisorios.Config;
 
-namespace Trabalho3_Sistemas_Supervisorios
+namespace Trabalho3_Sistemas_Supervisorios.OpcService
 {
     public class WriteThread : IThread
     {

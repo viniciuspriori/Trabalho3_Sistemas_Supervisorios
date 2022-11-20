@@ -9,8 +9,9 @@ using System.Windows.Forms;
 using TitaniumAS.Opc.Client;
 using TitaniumAS.Opc.Client.Common;
 using TitaniumAS.Opc.Client.Da;
+using Trabalho3_Sistemas_Supervisorios.Config;
 
-namespace Trabalho3_Sistemas_Supervisorios
+namespace Trabalho3_Sistemas_Supervisorios.OpcService
 {
     public class OpcManager
     {
@@ -78,7 +79,7 @@ namespace Trabalho3_Sistemas_Supervisorios
         public void TryConnect()
         {
             var count = 0;
-            while (!server.IsConnected && count < 3)
+            while (!server.IsConnected && count < 3) //try connect upt to 3 times, if can't, close application
             {
                 try
                 {

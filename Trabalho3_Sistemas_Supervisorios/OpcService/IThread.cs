@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TitaniumAS.Opc.Client.Da;
 
-namespace Trabalho3_Sistemas_Supervisorios
+namespace Trabalho3_Sistemas_Supervisorios.OpcService
 {
     public interface IThread
     {

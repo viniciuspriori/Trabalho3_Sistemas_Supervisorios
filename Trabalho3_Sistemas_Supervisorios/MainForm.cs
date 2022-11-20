@@ -17,6 +17,8 @@ using Timer = System.Windows.Forms.Timer;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Reflection;
+using Trabalho3_Sistemas_Supervisorios.Config;
+using Trabalho3_Sistemas_Supervisorios.OpcService;
 
 namespace Trabalho3_Sistemas_Supervisorios
 {
