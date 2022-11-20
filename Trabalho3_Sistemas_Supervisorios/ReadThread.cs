@@ -25,6 +25,12 @@ namespace Trabalho3_Sistemas_Supervisorios
             
         }
 
+        public void CloseThread()
+        {
+            IsRunning = false;
+            thread.Abort();
+        }
+
         public void Read()
         {
             while(IsRunning)

@@ -14,6 +14,8 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Timer = System.Windows.Forms.Timer;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Trabalho3_Sistemas_Supervisorios
 {
@@ -30,15 +32,13 @@ namespace Trabalho3_Sistemas_Supervisorios
         bool wStart, wReset = false;
         Timer timer;
         private ReadThread readRoutine;
-
-        List<OpcDaItem> read;
+        List<Control> readControls;
 
         public Form1()
         {
             InitializeComponent();
-            List<Control> controls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
 
-            read = new List<OpcDaItem>();
+            readControls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
 
             jsonSerializer = new JsonSerializer();
             configModel = new ConfigModel();
@@ -57,7 +57,7 @@ namespace Trabalho3_Sistemas_Supervisorios
         public void ConfigureTimer()
         {
             timer = new Timer();
-            timer.Interval = 500;
+            timer.Interval = 1000;
             timer.Tick += Timer_OPC_Tick;
             timer.Start();
         }
@@ -70,7 +70,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             
             HRESULT[] results = group.Write(writeItems, values);
 
-            Logger.AddSingleLog(1, "Writed Items OPC Items successfuly", DateTime.Now, Logger.Status.Normal);
+                      
         }
 
         public void StartProcedures()
@@ -85,14 +85,6 @@ namespace Trabalho3_Sistemas_Supervisorios
             {
                 TryConnect(server);
             }
-
-            // Create a browser and browse all elements recursively.
-            if (server.IsConnected)
-            {
-                //var browser = new OpcDaBrowserAuto(server);
-                //BrowseChildren(browser);
-            }
-            //}
 
             /// ----------GROUP----------- ///
             CreateGroup();
@@ -116,37 +108,95 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         private void ReadRoutine_OnReadGroup(object sender, List<OpcDaItemValue> valuesList)
         {
-           
-            foreach (var item in valuesList)
+            if (!_isClosing)
+                GetReadItem(valuesList);
+        }
+
+        private void GetReadItem(List<OpcDaItemValue> listfromopc)
+        {
+            //var busy = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[0]}");
+            //var emergency = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[1]}");
+            //var error = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[2]}");
+            //var numOpcOpaque = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[3]}");
+            //var numTransp = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[4]}");
+            //var opaque = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[5]}");
+            //var transp = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[6]}");
+
+            for (int i = 0; i < configModel.Tags.Count; i++)
             {
-                var debug = GetReadItem(item);
+                var item = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[i]}");
+
+                CheckReceivedValues(item);
             }
-            //SetText(numeroOpacas.Value.ToString());
-            //cast.Where(i => i.Item.ItemId == )
         }
 
-        public string GetReadItem(OpcDaItemValue opcDaItem)
+        private void CheckReceivedValues(OpcDaItemValue itemValue)
         {
-            return opcDaItem.Value.ToString();
-        }
-
-        delegate void SetTextCallback(string text);
-
-        private void SetText(string text)
-        {
-            // InvokeRequired required compares the thread ID of the
-            // calling thread to the thread ID of the creating thread.
-            // If these threads are different, it returns true.
-            if (this.textBoxCountOpacas.InvokeRequired)
+            if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[3]}") //NUM OPACAS - READ
             {
-                SetTextCallback d = new SetTextCallback(SetText);
-                this.Invoke(d, new object[] { text });
+                SetText(itemValue.Value.ToString(), readControls[0]);
+            }
+
+            if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[4]}") //NUM TRANSP - READ
+            {
+                SetText(itemValue.Value.ToString(), readControls[1]);
+            }
+
+            if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[0]}") //BUSY - READ
+            {
+                bool result = CheckAlarm(itemValue);
+                if (result)
+                {
+                    Logger.AddSingleLog(2, $"{configModel.Tags[0]} Alarm went on!", DateTime.Now, Logger.Status.Normal);
+                }
+            }
+
+            if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[1]}") //EMERGENCY - READ
+            {
+                bool result = CheckAlarm(itemValue);
+                if (result)
+                {
+                    Logger.AddSingleLog(3, $"{configModel.Tags[1]} Alarm went on!", DateTime.Now, Logger.Status.Emergency);
+                }
+            }
+
+            if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[2]}") //
+            {
+                bool result = CheckAlarm(itemValue);
+                if (result)
+                {
+                    Logger.AddSingleLog(4, $"{configModel.Tags[2]} Alarm went on!", DateTime.Now, Logger.Status.Error);
+                }
+            }
+        }
+
+        public bool CheckAlarm(OpcDaItemValue alarm)
+        {
+            bool val;
+            var success = bool.TryParse(alarm.Value.ToString(), out val);
+
+            if(success)
+            {
+                return val;
+            }
+
+            return false;
+        }
+
+
+        public void SetText(string text, Control control)
+        {
+            if (control.InvokeRequired)
+            {
+                Action safeWrite = delegate { SetText(text, control); };
+                control.Invoke(safeWrite);
             }
             else
             {
-                this.textBoxCountOpacas.Text = text;
+                control.Text = text;
             }
         }
+
 
         public void CreateGroup()
         {
@@ -154,15 +204,9 @@ namespace Trabalho3_Sistemas_Supervisorios
             group = server.AddGroup("MyGroup");
             group.IsActive = true;
 
-            var fullDictionary = new Dictionary<string, string>();
-            fullDictionary = configModel.TagsRead.ToDictionary(entry => entry.Key,
-                                               entry => entry.Value); //CLONE READ TAGS
-
-            configModel.TagsWrite.ToList().ForEach(x => fullDictionary.Add(x.Key, x.Value));
-
             var listDefintions = new List<OpcDaItemDefinition>();
 
-            foreach (var item in fullDictionary)
+            foreach (var item in configModel.Tags)
             {
                 listDefintions.Add(
                     new OpcDaItemDefinition
@@ -172,20 +216,6 @@ namespace Trabalho3_Sistemas_Supervisorios
                     });
             }
 
-            //var definition1 = new OpcDaItemDefinition
-            //{
-            //    ItemId = $"{deviceName}.Start",
-            //    IsActive = true
-            //};
-            //var definition2 = new OpcDaItemDefinition
-            //{
-            //    ItemId = $"{deviceName}.Reset",
-            //    IsActive = true
-            //};
-
-            //OpcDaItemDefinition[] definitions = { definition1, definition2 };
-            //OpcDaItemResult[] results = group.AddItems(definitions);
-
             OpcDaItemResult[] results = group.AddItems(listDefintions);
 
             //// Handle adding results.
@@ -194,7 +224,7 @@ namespace Trabalho3_Sistemas_Supervisorios
                 if (result.Error.Failed)
                 {                    
                     MessageBox.Show($"{result.Error}", "Application will close");
-                    //Environment.Exit(0);
+                    Environment.Exit(0);
                 }
             }
         }
@@ -203,8 +233,8 @@ namespace Trabalho3_Sistemas_Supervisorios
         {
             var list = new List<OpcDaItem>()
             {
-                group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_START", false)}"),
-                group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_RESET", false)}")
+                group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.Tags[7]}"),
+                group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.Tags[8]}")
             };
              
             //OpcDaItem boolStart = group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_START", false)}");
@@ -268,10 +298,11 @@ namespace Trabalho3_Sistemas_Supervisorios
         }
 
 
-
+        private bool _isClosing;
         private async void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            readRoutine.IsRunning = false;
+            _isClosing = true;
+            readRoutine.CloseThread();
 
             var taskModel = SaveConfigModel();
             var taskLogger = Logger.SaveAsync(_loggerFolder);

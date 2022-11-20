@@ -176,7 +176,7 @@
             // 
             this.labelContadorDePecas.AutoSize = true;
             this.labelContadorDePecas.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F);
-            this.labelContadorDePecas.Location = new System.Drawing.Point(49, 10);
+            this.labelContadorDePecas.Location = new System.Drawing.Point(59, 10);
             this.labelContadorDePecas.Name = "labelContadorDePecas";
             this.labelContadorDePecas.Size = new System.Drawing.Size(219, 29);
             this.labelContadorDePecas.TabIndex = 0;
