@@ -35,10 +35,13 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         List<Control> readControls;
         bool rBusy, rError, rEmergency;
+        Timer timer;
 
         public Form1()
         {
             InitializeComponent();
+
+            MoveBigLogs();
 
             readControls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
 
@@ -50,9 +53,23 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             StartProcedures();
 
-            Logger.AddSingleLog(0, "App started", DateTime.Now, Logger.Status.Normal);
+            ConfigureTimer();
+
+            Logger.AddSingleLog(0, "Application started", DateTime.Now, Logger.Status.Normal);
         }
 
+        public void MoveBigLogs() //Delete Larger Files
+        {
+            var filesInDir = Directory.GetFiles(_loggerFolder, "log*.txt");
+
+            foreach (var file in filesInDir)
+            {
+                if (file.Length > 1000000)
+                {
+                    File.Move(file, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), Path.GetFileName(file)));
+                }
+            }
+        }
 
         public void StartProcedures()
         {
@@ -74,18 +91,34 @@ namespace Trabalho3_Sistemas_Supervisorios
             //Read all items of the group synchronously.
             readRoutine = new ReadThread(group);
             readRoutine.OnReadGroup += ReadRoutine_OnReadGroup;
-            // OpcDaItemValue[] values = group.Read(group.Items, OpcDaDataSource.Device);
-
-            //Read all items of the group asynchronously.
-            // OpcDaItemValue[] values = await group.ReadAsync(group.Items);
 
             // -----------WRITE------------ ///
             writeRoutine = new WriteThread(group, configModel);
-            // Prepare items.
-            // Write values to the items synchronously.
-            // Write values to the items asynchronously.
-            //object[] values2 = { 3, 4 };
-            //HRESULT[] results2 = await group.WriteAsync(items, values);
+
+        }
+
+        public void ConfigureTimer()
+        {
+            timer = new Timer();
+            timer.Interval = 5000;
+            timer.Tick += Timer_Log_Tick;
+            timer.Start();
+        }
+
+        private void Timer_Log_Tick(object sender, EventArgs e)
+        {
+            if(rBusy)
+            {
+                Logger.AddSingleLog(2, $"{configModel.Tags[0]} Alarm went on!", DateTime.Now, Logger.Status.Normal);
+            }
+            if(rEmergency)
+            {
+                Logger.AddSingleLog(2, $"{configModel.Tags[1]} Alarm went on!", DateTime.Now, Logger.Status.Emergency);
+            }
+            if(rError)
+            {
+                Logger.AddSingleLog(2, $"{configModel.Tags[2]} Alarm went on!", DateTime.Now, Logger.Status.Error);
+            }
         }
 
         private void ReadRoutine_OnReadGroup(object sender, List<OpcDaItemValue> valuesList)
@@ -127,24 +160,16 @@ namespace Trabalho3_Sistemas_Supervisorios
             if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[0]}") //BUSY - READ
             {
                 rBusy = CheckAlarm(itemValue);
-                
-                Logger.AddSingleLog(2, $"{configModel.Tags[0]} Alarm went on!", DateTime.Now, Logger.Status.Normal);
-                
             }
 
             if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[1]}") //EMERGENCY - READ
             {
                 rEmergency = CheckAlarm(itemValue);
-
-                Logger.AddSingleLog(3, $"{configModel.Tags[1]} Alarm went on!", DateTime.Now, Logger.Status.Emergency);
-                
             }
 
             if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[2]}") //
             {
                 rError = CheckAlarm(itemValue);
-                Logger.AddSingleLog(4, $"{configModel.Tags[2]} Alarm went on!", DateTime.Now, Logger.Status.Error);
-                
             }
         }
 
@@ -202,6 +227,7 @@ namespace Trabalho3_Sistemas_Supervisorios
                 if (result.Error.Failed)
                 {                    
                     MessageBox.Show($"{result.Error}", "Application will close");
+                    Logger.AddSingleLog(-100, "Application is closing", DateTime.Now, Logger.Status.Error);
                     Environment.Exit(0);
                 }
             }
@@ -244,6 +270,8 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         private async void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            Logger.AddSingleLog(-1, "Application is closing", DateTime.Now, Logger.Status.Normal);
+
             _isClosing = true;
             readRoutine.CloseThread();
             writeRoutine.CloseThread();
