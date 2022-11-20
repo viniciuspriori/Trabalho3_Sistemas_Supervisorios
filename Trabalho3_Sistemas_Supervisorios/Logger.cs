@@ -17,7 +17,7 @@ namespace Trabalho3_Sistemas_Supervisorios
     {
         static List<EventModel> events = new List<EventModel>();
 
-        public static void AddSingleLog(int id, string message, DateTime time, Status status)
+        public static void AddSingleLog(int id, string message, DateTime time, Status status) //adiciona um novo log à lista
         {
             events.Add(new EventModel
             {
@@ -28,10 +28,15 @@ namespace Trabalho3_Sistemas_Supervisorios
         });
         }
 
-
-        public static async Task<bool?> SaveAsync(string folderPath)
+        public static void ClearLogs() //limpa a lista de logs
         {
-            var logPath = Path.Combine(folderPath, "log.txt");
+            events.Clear();
+        }
+
+
+        public static async Task<bool?> SaveAsync(string folderPath) //salva a lista de forma assíncrona
+        {
+            var logPath = Path.Combine(folderPath, $"log{DateTime.Now:hh:mm:ss}.txt");
             bool success = false;
 
             var jsonString = new string[] { JsonConvert.SerializeObject(events, Formatting.Indented) };
@@ -51,10 +56,9 @@ namespace Trabalho3_Sistemas_Supervisorios
 
                 await Task.Delay(500);
             }
-
         }
 
-        public static bool Save(string folderPath)
+        public static bool Save(string folderPath) //salva a lista de logs de forma síncrona
         {
             var logPath = Path.Combine(folderPath, "log.txt");
 
@@ -73,7 +77,7 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         }
 
-        class EventModel
+        class EventModel //modelo de log
         {
             public int Id { get; set; }
             public string Message { get; set; }
@@ -82,7 +86,7 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         }
 
-        public enum Status
+        public enum Status //status dos logs
         {
             Normal,
             Warning,

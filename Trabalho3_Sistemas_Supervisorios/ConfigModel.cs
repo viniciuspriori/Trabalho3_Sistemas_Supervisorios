@@ -49,7 +49,7 @@ namespace Trabalho3_Sistemas_Supervisorios
                 }
                 else
                 {
-                    return TagsRead.First().Value;
+                    return TagsRead.FirstOrDefault().Value;
                 }
             }
             else
@@ -61,7 +61,7 @@ namespace Trabalho3_Sistemas_Supervisorios
                 }
                 else
                 {
-                    return TagsWrite.First().Value;
+                    return TagsWrite.FirstOrDefault().Value;
                 }
             }
         }

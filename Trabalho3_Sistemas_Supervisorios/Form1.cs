@@ -31,9 +31,14 @@ namespace Trabalho3_Sistemas_Supervisorios
         Timer timer;
         private ReadThread readRoutine;
 
+        List<OpcDaItem> read;
+
         public Form1()
         {
             InitializeComponent();
+            List<Control> controls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
+
+            read = new List<OpcDaItem>();
 
             jsonSerializer = new JsonSerializer();
             configModel = new ConfigModel();
@@ -64,6 +69,8 @@ namespace Trabalho3_Sistemas_Supervisorios
             object[] values  = { wStart, wReset };
             
             HRESULT[] results = group.Write(writeItems, values);
+
+            Logger.AddSingleLog(1, "Writed Items OPC Items successfuly", DateTime.Now, Logger.Status.Normal);
         }
 
         public void StartProcedures()
@@ -107,12 +114,38 @@ namespace Trabalho3_Sistemas_Supervisorios
             //HRESULT[] results2 = await group.WriteAsync(items, values);
         }
 
-        private void ReadRoutine_OnReadGroup(object sender, OpcDaItemValue[] values)
+        private void ReadRoutine_OnReadGroup(object sender, List<OpcDaItemValue> valuesList)
         {
-            var valuesList = values.ToList();
-            var error = valuesList.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_ERROR", false)}");
-            //var deb = x.Value;
+           
+            foreach (var item in valuesList)
+            {
+                var debug = GetReadItem(item);
+            }
+            //SetText(numeroOpacas.Value.ToString());
             //cast.Where(i => i.Item.ItemId == )
+        }
+
+        public string GetReadItem(OpcDaItemValue opcDaItem)
+        {
+            return opcDaItem.Value.ToString();
+        }
+
+        delegate void SetTextCallback(string text);
+
+        private void SetText(string text)
+        {
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (this.textBoxCountOpacas.InvokeRequired)
+            {
+                SetTextCallback d = new SetTextCallback(SetText);
+                this.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                this.textBoxCountOpacas.Text = text;
+            }
         }
 
         public void CreateGroup()

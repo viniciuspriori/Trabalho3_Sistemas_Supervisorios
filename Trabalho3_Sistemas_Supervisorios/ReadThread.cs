@@ -13,7 +13,7 @@ namespace Trabalho3_Sistemas_Supervisorios
         private OpcDaGroup _group;
         Thread thread;
         public bool IsRunning { get; set; } = true;
-        public event EventHandler<OpcDaItemValue[]> OnReadGroup;
+        public event EventHandler<List<OpcDaItemValue>> OnReadGroup;
 
         public ReadThread(OpcDaGroup group)
         {
@@ -29,7 +29,7 @@ namespace Trabalho3_Sistemas_Supervisorios
         {
             while(IsRunning)
             {
-                OnReadGroup?.Invoke(this, _group.Read(_group.Items, OpcDaDataSource.Device));
+                OnReadGroup?.Invoke(this, _group.Read(_group.Items, OpcDaDataSource.Device).ToList());
             }
         }
     }
