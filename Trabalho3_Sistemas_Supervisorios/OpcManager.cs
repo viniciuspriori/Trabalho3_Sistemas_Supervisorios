@@ -40,7 +40,7 @@ namespace Trabalho3_Sistemas_Supervisorios
         public void StartOPCProcedures()
         {
             /// ---------- ESTABLISH CONNECTION ----------- ///
-            Uri url = UrlBuilder.Build("Kepware.KEPServerEX.V6/Channel1.Device1");
+            Uri url = UrlBuilder.Build(_configManager.GetServerUrl());
             server = new OpcDaServer(url);
             TryConnect();
 
@@ -90,6 +90,12 @@ namespace Trabalho3_Sistemas_Supervisorios
                     MessageBox.Show(e.Message);
                     Thread.Sleep(500);
                 }
+            }
+
+            if(count>3)
+            {
+                Logger.AddSingleLog(-1, "Application Closing", DateTime.Now, Logger.Status.Error);
+                Environment.Exit(0);
             }
         }
 

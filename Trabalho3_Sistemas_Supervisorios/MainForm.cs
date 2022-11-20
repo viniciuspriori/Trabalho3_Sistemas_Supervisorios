@@ -20,7 +20,7 @@ using System.Reflection;
 
 namespace Trabalho3_Sistemas_Supervisorios
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         ConfigManager _configManager;
         OpcManager _opcManager;
@@ -32,15 +32,13 @@ namespace Trabalho3_Sistemas_Supervisorios
         List<Control> readControls;
         Timer timerLog;
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
 
             AdjustControls();
             MoveBigLogs();
-
             
-
             readControls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
 
             _configManager = new ConfigManager();

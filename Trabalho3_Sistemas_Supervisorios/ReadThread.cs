@@ -23,7 +23,6 @@ namespace Trabalho3_Sistemas_Supervisorios
             IsRunning = true;
             thread.Name = "ReadThread";
             thread.Start();
-            
         }
 
         public void CloseThread()

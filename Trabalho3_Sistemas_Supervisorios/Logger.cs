@@ -35,7 +35,7 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         public static async Task<bool?> SaveAsync(string folderPath) //salva a lista de forma assíncrona
         {
-            var logPath = Path.Combine(folderPath, $"log - {DateTime.Now.ToString("yyyy-MM-dd")}.txt");
+            var logPath = Path.Combine(folderPath, $"log - {DateTime.Now.ToString("yyyy-MM-dd - HH-mm-ss")}.txt");
             bool success;
 
             var jsonString = new string[] { JsonConvert.SerializeObject(events, Formatting.Indented) };

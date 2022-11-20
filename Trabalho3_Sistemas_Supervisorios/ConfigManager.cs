@@ -30,7 +30,10 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         public int GetTagsCount() => ConfigModel.Tags.Count;
 
-        public string GetServerUrl() => $"{ConfigModel.ServerName}/{ConfigModel.DeviceName}";
+        public string GetServerUrl()
+        {
+           return $"{ConfigModel.ServerName}/{ConfigModel.DeviceName}";
+        }
 
         public ConfigModel GetConfigModel() => ConfigModel;
 

@@ -15,8 +15,8 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         public void Default()
         {
-            DeviceName = "Channel1.Device1";
             ServerName = "Kepware.KEPServerEX.V6";
+            DeviceName = "Channel1.Device1";
 
             Tags = new Dictionary<int, string>()
             {
