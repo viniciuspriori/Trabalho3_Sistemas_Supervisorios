@@ -178,8 +178,14 @@ namespace Trabalho3_Sistemas_Supervisorios
         private void buttonReset_Click(object sender, EventArgs e) //atualiza o estado de reset ao botão ser pressionado e escreve a tag
         {
             wReset = !wReset;
-            GetValuesFromTextBoxes();
+
+            if (wReset == true)
+            {
+                GetValuesFromTextBoxes();
+            }
+
             _opcManager.Write(new object[] { wStart, wReset });
+
         }
 
         public void GetValuesFromTextBoxes() //contagem de totalizadores
