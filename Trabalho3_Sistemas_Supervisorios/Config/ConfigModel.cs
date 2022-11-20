@@ -11,12 +11,17 @@ namespace Trabalho3_Sistemas_Supervisorios.Config
         public string DeviceName { get; set; }
         public string ServerName { get; set; }
 
+        public int TotalizadorOpaca { get; set; }
+        public int TotalizadorTransp { get; set; }
+
         public Dictionary<int, string> Tags { get; set; }
 
         public void Default()
         {
             ServerName = "Kepware.KEPServerEX.V6";
             DeviceName = "Channel1.Device1";
+            TotalizadorOpaca = 0;
+            TotalizadorTransp = 0;
 
             Tags = new Dictionary<int, string>()
             {
@@ -32,20 +37,22 @@ namespace Trabalho3_Sistemas_Supervisorios.Config
             };
         }
 
-        public string ReturnItem(int key, bool isRead)
-        {
-            string val = "";
 
-                bool result = Tags.TryGetValue(key, out val);
-                if (result)
-                {
-                    return val;
-                }
-                else
-                {
-                    return Tags.FirstOrDefault().Value;
-                }
-        }
+        ///deprecated///
+        //public string ReturnItem(int key, bool isRead)
+        //{
+        //    string val = "";
+
+        //        bool result = Tags.TryGetValue(key, out val);
+        //        if (result)
+        //        {
+        //            return val;
+        //        }
+        //        else
+        //        {
+        //            return Tags.FirstOrDefault().Value;
+        //        }
+        //}
     }
 
 }

@@ -22,6 +22,12 @@ namespace Trabalho3_Sistemas_Supervisorios.Config
             ConfigModel = OpenConfigModel();
         }
 
+        public void UpdateTotalizers(int numOpaca, int numTransp)
+        {
+            ConfigModel.TotalizadorOpaca = numOpaca;
+            ConfigModel.TotalizadorTransp = numTransp;
+        }
+
         public string GetTagAddressByIndex(int index) =>
              $"{ConfigModel.DeviceName}.{ConfigModel.Tags[index]}";
 

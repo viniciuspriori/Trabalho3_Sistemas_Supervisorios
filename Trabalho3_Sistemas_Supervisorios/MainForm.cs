@@ -34,6 +34,8 @@ namespace Trabalho3_Sistemas_Supervisorios
         List<Control> readControls;
         Timer timerLog;
 
+        int countGeralOpacas, countGeralTransp;
+
         public MainForm()
         {
             InitializeComponent();
@@ -56,7 +58,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             CheckReceivedValues(valuesFromManager);
         }
 
-        public void MoveBigLogs() //Delete Larger Files
+        public void MoveBigLogs() //Move Big Files to Desktop
         {
             var filesInDir = Directory.GetFiles(_loggerFolder, "log*.txt");
 
@@ -173,7 +175,19 @@ namespace Trabalho3_Sistemas_Supervisorios
         private void buttonReset_Click(object sender, EventArgs e)
         {
             wReset = !wReset;
+            GetValuesFromTextBoxes();
             _opcManager.Write(new object[] { wStart, wReset });
+        }
+
+        public void GetValuesFromTextBoxes()
+        {
+            countGeralOpacas += int.Parse(textBoxCountOpacas.Text);
+            textBoxCountGeralOpacas.Text = countGeralOpacas.ToString();
+
+            countGeralTransp += int.Parse(textBoxCountTransp.Text);
+            textBoxCountGeralTransp.Text = countGeralTransp.ToString();
+
+            _configManager.UpdateTotalizers(countGeralOpacas, countGeralTransp);
         }
 
         public void AdjustControls()
