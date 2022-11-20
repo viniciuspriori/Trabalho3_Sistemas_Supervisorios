@@ -8,13 +8,13 @@ namespace Trabalho3_Sistemas_Supervisorios.Config
 {
     public class ConfigModel
     {
-        public string DeviceName { get; set; }
-        public string ServerName { get; set; }
+        public string DeviceName { get; set; } //nome do dispositivo
+        public string ServerName { get; set; } //nome do servidor
 
-        public int TotalizadorOpaca { get; set; }
-        public int TotalizadorTransp { get; set; }
+        public int TotalizadorOpaca { get; set; } //totalizador de opacas
+        public int TotalizadorTransp { get; set; } //totalizador de transparentes
 
-        public Dictionary<int, string> Tags { get; set; }
+        public Dictionary<int, string> Tags { get; set; } //lista de tags
 
         public void Default()
         {
@@ -25,34 +25,17 @@ namespace Trabalho3_Sistemas_Supervisorios.Config
 
             Tags = new Dictionary<int, string>()
             {
-                [0] = "Busy",
-                [1] = "Emergency",
-                [2] = "Error",
-                [3] = "NumOpcOpaque",
-                [4] = "NumTransp", //word
-                [5] = "Opaque",
-                [6] = "Transparent",
-                [7] = "Start",
-                [8] = "Reset"
+                [0] = "Busy", //bool (READ)
+                [1] = "Emergency", //bool (READ)
+                [2] = "Error",  //bool (READ)
+                [3] = "NumOpcOpaque", //word (READ)
+                [4] = "NumTransp", //word (READ)
+                [5] = "Opaque", //bool (READ)
+                [6] = "Transparent",//bool (READ)
+                [7] = "Start", //bool (WRITE)
+                [8] = "Reset" //bool (WRITE)
             };
         }
-
-
-        ///deprecated///
-        //public string ReturnItem(int key, bool isRead)
-        //{
-        //    string val = "";
-
-        //        bool result = Tags.TryGetValue(key, out val);
-        //        if (result)
-        //        {
-        //            return val;
-        //        }
-        //        else
-        //        {
-        //            return Tags.FirstOrDefault().Value;
-        //        }
-        //}
     }
 
 }

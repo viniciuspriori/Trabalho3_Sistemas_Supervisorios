@@ -8,7 +8,7 @@ using TitaniumAS.Opc.Client.Da;
 
 namespace Trabalho3_Sistemas_Supervisorios.OpcService
 {
-    public interface IThread
+    public interface IThread //interface commum às threads
     {
         bool IsRunning { get; set; }
         OpcDaGroup _group { get; }

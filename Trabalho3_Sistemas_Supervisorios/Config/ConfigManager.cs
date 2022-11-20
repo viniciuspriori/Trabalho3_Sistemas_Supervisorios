@@ -9,20 +9,19 @@ using System.Threading.Tasks;
 
 namespace Trabalho3_Sistemas_Supervisorios.Config
 {
-    public class ConfigManager
+    public class ConfigManager //gerenciador das configurações do sistema
     {
-        string _modelPath = Path.Combine(Environment.CurrentDirectory, "configModel.json");
+        string _modelPath = Path.Combine(Environment.CurrentDirectory, "configModel.json"); //caminho de salvamento do modelo
 
         private ConfigModel ConfigModel;
 
         public ConfigManager()
         {
-            ConfigModel = new ConfigModel();
-            ConfigModel.Default();
-            ConfigModel = OpenConfigModel();
+            ConfigModel = new ConfigModel(); //instancia a classe de modelo
+            ConfigModel = OpenConfigModel(); //abre o modelo se houver
         }
 
-        public void UpdateTotalizers(int numOpaca, int numTransp)
+        public void UpdateTotalizers(int numOpaca, int numTransp) //atualiza os totalizadores
         {
             ConfigModel.TotalizadorOpaca = numOpaca;
             ConfigModel.TotalizadorTransp = numTransp;
@@ -31,14 +30,14 @@ namespace Trabalho3_Sistemas_Supervisorios.Config
         public string GetTagAddressByIndex(int index) =>
              $"{ConfigModel.DeviceName}.{ConfigModel.Tags[index]}";
 
-        public string GetTagName(int index) =>
+        public string GetTagName(int index) => //retorna o nome da tag de acordo com o índice
             ConfigModel.Tags[index];
 
-        public int GetTagsCount() => ConfigModel.Tags.Count;
+        public int GetTagsCount() => ConfigModel.Tags.Count; //retorna o contador de tags
 
-        public string GetServerUrl()
+        public string GetServerUrl() //retorna a URL do server a ser conectado
         {
-           return $"{ConfigModel.ServerName}/{ConfigModel.DeviceName}";
+           return $"{ConfigModel.ServerName}/{ConfigModel.DeviceName}"; 
         }
 
         public ConfigModel GetConfigModel() => ConfigModel;
@@ -47,7 +46,7 @@ namespace Trabalho3_Sistemas_Supervisorios.Config
 
         public string GetDeviceName() => ConfigModel.DeviceName;
 
-        public ConfigModel OpenConfigModel()
+        public ConfigModel OpenConfigModel() //pega do arquivo salvo se houver e tiver algo escrito, se não houver cria outro com configurações padrão
         {
             if (File.Exists(_modelPath) && new FileInfo(_modelPath).Length > 0)
             {
@@ -66,7 +65,7 @@ namespace Trabalho3_Sistemas_Supervisorios.Config
             }
         }
 
-        public async Task SaveConfigModel()
+        public async Task SaveConfigModel() //salva o modelo
         {
             using (StreamWriter sw = new StreamWriter(_modelPath))
             {

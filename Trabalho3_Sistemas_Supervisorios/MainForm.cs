@@ -24,17 +24,17 @@ namespace Trabalho3_Sistemas_Supervisorios
 {
     public partial class MainForm : Form
     {
-        ConfigManager _configManager;
-        OpcManager _opcManager;
-        string _loggerFolder = Path.Combine(Environment.CurrentDirectory);
+        ConfigManager _configManager; //gerenciador de configurações
+        OpcManager _opcManager; //gerenciador de serviços OPC
+        string _loggerFolder = Path.Combine(Environment.CurrentDirectory); //pasta do log
 
-        bool wStart, wReset = false;
-        bool rBusy, rError, rEmergency;
+        bool wStart, wReset = false; //booleanas de escrita
+        bool rBusy, rError, rEmergency; //booleanas de leitura
 
-        List<Control> readControls;
-        Timer timerLog;
+        List<Control> readControls; //lista de controles associados à leitura em tempo real do OPC
+        Timer timerLog; //timer do log de evento
 
-        int countGeralOpacas, countGeralTransp;
+        int countGeralOpacas, countGeralTransp; //contadores gerais
 
         public MainForm()
         {
@@ -53,25 +53,26 @@ namespace Trabalho3_Sistemas_Supervisorios
             Logger.AddSingleLog(0, "Application started", DateTime.Now, Logger.Status.Normal);
         }
 
-        private void _opcManager_OnReadManager(object sender, OpcDaItemValue valuesFromManager)
+        private void _opcManager_OnReadManager(object sender, OpcDaItemValue valuesFromManager) //evento disparado ao receber valores lidos
         {
-            CheckReceivedValues(valuesFromManager);
+            CheckReceivedValues(valuesFromManager); 
         }
 
-        public void MoveBigLogs() //Move Big Files to Desktop
+        public void MoveBigLogs() //move grandes arquivos de log para o desktop
+                                  //(provavelmente há muitos erros, então deve ser visto com urgência)
         {
             var filesInDir = Directory.GetFiles(_loggerFolder, "log*.txt");
 
             foreach (var file in filesInDir)
             {
-                if (file.Length > 1000000)
+                if (file.Length > 1000000) //move se o tamanho do arquivo for maior do que 1MB
                 {
                     File.Move(file, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), Path.GetFileName(file)));
                 }
             }
         }
 
-        public void ConfigureLoggerTimer()
+        public void ConfigureLoggerTimer() //timer do log. escreve as tags no arquivo de texto de 2,5 em 2,5 segundos
         {
             timerLog = new Timer();
             timerLog.Interval = 2500;
@@ -79,23 +80,26 @@ namespace Trabalho3_Sistemas_Supervisorios
             timerLog.Start();
         }
 
-        private void Timer_Log_Tick(object sender, EventArgs e)
+        private void Timer_Log_Tick(object sender, EventArgs e) //adiciona ao log caso um alarme seja disparado
         {
             if(rBusy)
             {
+                //escreve alarme ocupado...
                 Logger.AddSingleLog(2, $"{_configManager.GetTagName(0)} Alarm went on!", DateTime.Now, Logger.Status.Normal);
             }
             if(rEmergency)
             {
+                //escreve alarme emergencia...
                 Logger.AddSingleLog(2, $"{_configManager.GetTagName(1)} Alarm went on!", DateTime.Now, Logger.Status.Emergency);
             }
             if(rError)
             {
+                //escreve alarme erro...
                 Logger.AddSingleLog(2, $"{_configManager.GetTagName(2)} Alarm went on!", DateTime.Now, Logger.Status.Error);
             }
         }
 
-        private void CheckReceivedValues(OpcDaItemValue itemValue)
+        private void CheckReceivedValues(OpcDaItemValue itemValue) //checa os valores recebidos e os distribui para a interface
         {
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(0)) //BUSY - READ ALARM
@@ -124,7 +128,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             }
         }
 
-        public bool CheckAlarm(OpcDaItemValue alarm)
+        public bool CheckAlarm(OpcDaItemValue alarm) //checa estado dos alarmes
         {
             bool val;
             var success = bool.TryParse(alarm.Value.ToString(), out val);
@@ -137,8 +141,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             return false;
         }
 
-
-        public void SetText(string text, Control control)
+        public void SetText(string text, Control control) //atualiza o texto de acordo com o número de peças opacas e transparentes
         {
             if (control.InvokeRequired)
             {
@@ -166,20 +169,20 @@ namespace Trabalho3_Sistemas_Supervisorios
             Environment.Exit(0);
         }
 
-        private void buttonStart_Click(object sender, EventArgs e)
+        private void buttonStart_Click(object sender, EventArgs e) //atualiza o estado de start ao botão ser pressionado e escreve a tag
         {
             wStart = !wStart;
             _opcManager.Write(new object[] { wStart, wReset });
         }
 
-        private void buttonReset_Click(object sender, EventArgs e)
+        private void buttonReset_Click(object sender, EventArgs e) //atualiza o estado de reset ao botão ser pressionado e escreve a tag
         {
             wReset = !wReset;
             GetValuesFromTextBoxes();
             _opcManager.Write(new object[] { wStart, wReset });
         }
 
-        public void GetValuesFromTextBoxes()
+        public void GetValuesFromTextBoxes() //contagem de totalizadores
         {
             countGeralOpacas += int.Parse(textBoxCountOpacas.Text);
             textBoxCountGeralOpacas.Text = countGeralOpacas.ToString();
@@ -187,10 +190,10 @@ namespace Trabalho3_Sistemas_Supervisorios
             countGeralTransp += int.Parse(textBoxCountTransp.Text);
             textBoxCountGeralTransp.Text = countGeralTransp.ToString();
 
-            _configManager.UpdateTotalizers(countGeralOpacas, countGeralTransp);
+            _configManager.UpdateTotalizers(countGeralOpacas, countGeralTransp); //alimenta os totalizadores no modelo
         }
 
-        public void AdjustControls()
+        public void AdjustControls() //centraliza os controles na interface
         {
             labelContadorDePecas.TextAlign = ContentAlignment.MiddleLeft;
             labelContadorDePecas.Location = new Point((panel1.Width / 2 - labelContadorDePecas.Width / 2), labelContadorDePecas.Location.Y);

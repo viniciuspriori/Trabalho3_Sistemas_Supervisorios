@@ -15,7 +15,7 @@ namespace Trabalho3_Sistemas_Supervisorios
 {
     public static class Logger
     {
-        static List<EventModel> events = new List<EventModel>();
+        static List<EventModel> events = new List<EventModel>(); //instancia a lista de eventos
         public static void AddSingleLog(int id, string message, DateTime time, Status status) //adiciona um novo log à lista
         {
             events.Add(new EventModel
@@ -27,26 +27,25 @@ namespace Trabalho3_Sistemas_Supervisorios
         });
         }
 
-        public static void ClearLogs() //limpa a lista de logs
+        public static void ClearLogs() //limpa a lista de logs (não utilizado)
         {
             events.Clear();
         }
 
-
         public static async Task<bool?> SaveAsync(string folderPath) //salva a lista de forma assíncrona
         {
-            var logPath = Path.Combine(folderPath, $"log - {DateTime.Now.ToString("yyyy-MM-dd - HH-mm-ss")}.txt");
+            var logPath = Path.Combine(folderPath, $"log - {DateTime.Now.ToString("yyyy-MM-dd - HH-mm-ss")}.txt"); //caminho de salvamento
 
             var jsonString = new string[] { JsonConvert.SerializeObject(events, Formatting.Indented) };
             try
             {
-                File.WriteAllLines(logPath, jsonString);
+                File.WriteAllLines(logPath, jsonString); //escreve no arquivo
                 return true;
             }
 
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message); //erro ao salvar lista
                 return false;
             }
             finally
@@ -55,7 +54,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             }
         }
 
-        public static bool Save(string folderPath) //salva a lista de logs de forma síncrona
+        public static bool Save(string folderPath) //salva a lista de logs de forma síncrona (não utilizado)
         {
             var logPath = Path.Combine(folderPath, $"log - {DateTime.Now.ToString("yyyy-MM-dd - HH-mm-ss")}.txt");
 
@@ -83,7 +82,7 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         }
 
-        public enum Status //status dos logs
+        public enum Status //status dos logs da aplicação
         {
             Normal,
             Warning,

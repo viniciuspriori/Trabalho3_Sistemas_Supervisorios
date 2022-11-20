@@ -59,12 +59,12 @@ namespace Trabalho3_Sistemas_Supervisorios.OpcService
 
                     object[] values = { wStart, wReset };
 
-                    HRESULT[] results = _group.Write(writeItems, values);
+                    HRESULT[] results = _group.Write(writeItems, values); //escreve itens no servidor
                 }
             }
         }
 
-        private List<OpcDaItem> GetWriteItems()
+        private List<OpcDaItem> GetWriteItems() //retorna os itens de acordo com o respectivo ID 
         {
             var list = new List<OpcDaItem>()
             {

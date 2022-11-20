@@ -29,10 +29,10 @@ namespace Trabalho3_Sistemas_Supervisorios.OpcService
         {
             _configManager = config;
 
-            StartOPCProcedures();
+            StartOPCProcedures(); //configure opc
         }
 
-        public void Kill()
+        public void Kill() //stop all threads
         {
             readRoutine.CloseThread();
             writeRoutine.CloseThread();

@@ -14,9 +14,9 @@ namespace Trabalho3_Sistemas_Supervisorios.OpcService
         public Thread thread { get; }
         public bool IsRunning { get; set; } = true;
 
-        public event EventHandler<List<OpcDaItemValue>> OnReadGroup;
+        public event EventHandler<List<OpcDaItemValue>> OnReadGroup; //evento de leitura
 
-        public ReadThread(OpcDaGroup group)
+        public ReadThread(OpcDaGroup group) //thread destinada à leitura assíncrona dos itens do servidor
         {
             _group = group;
             thread = new Thread(Work);
@@ -35,7 +35,7 @@ namespace Trabalho3_Sistemas_Supervisorios.OpcService
         {
             while(IsRunning)
             {
-                OnReadGroup?.Invoke(this, _group.Read(_group.Items, OpcDaDataSource.Device).ToList());
+                OnReadGroup?.Invoke(this, _group.Read(_group.Items, OpcDaDataSource.Device).ToList()); //assim que houver leitura,
             }
         }
     }
