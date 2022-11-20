@@ -8,17 +8,18 @@ using TitaniumAS.Opc.Client.Da;
 
 namespace Trabalho3_Sistemas_Supervisorios
 {
-    public class ReadThread
+    public class ReadThread : IThread
     {
-        private OpcDaGroup _group;
-        Thread thread;
+        public OpcDaGroup _group { get; }
+        public Thread thread { get; }
         public bool IsRunning { get; set; } = true;
+
         public event EventHandler<List<OpcDaItemValue>> OnReadGroup;
 
         public ReadThread(OpcDaGroup group)
         {
             _group = group;
-            thread = new Thread(Read);
+            thread = new Thread(Work);
             IsRunning = true;
 
             thread.Start();
@@ -31,7 +32,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             thread.Abort();
         }
 
-        public void Read()
+        public void Work()
         {
             while(IsRunning)
             {

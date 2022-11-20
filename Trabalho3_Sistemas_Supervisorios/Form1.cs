@@ -23,16 +23,18 @@ namespace Trabalho3_Sistemas_Supervisorios
     {
         private OpcDaServer server;
         //private StreamWriter _debugStreamWriter;
-
+        private bool _isClosing;
         ConfigModel configModel;
-        JsonSerializer jsonSerializer;
         string _modelPath = Path.Combine(Environment.CurrentDirectory, "configModel.json");
         string _loggerFolder = Path.Combine(Environment.CurrentDirectory);
         OpcDaGroup group;
         bool wStart, wReset = false;
-        Timer timer;
+
         private ReadThread readRoutine;
+        private WriteThread writeRoutine;
+
         List<Control> readControls;
+        bool rBusy, rError, rEmergency;
 
         public Form1()
         {
@@ -40,7 +42,6 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             readControls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
 
-            jsonSerializer = new JsonSerializer();
             configModel = new ConfigModel();
             configModel.Default();
             configModel = OpenConfigModel();
@@ -49,29 +50,9 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             StartProcedures();
 
-            ConfigureTimer();
-
             Logger.AddSingleLog(0, "App started", DateTime.Now, Logger.Status.Normal);
         }
 
-        public void ConfigureTimer()
-        {
-            timer = new Timer();
-            timer.Interval = 1000;
-            timer.Tick += Timer_OPC_Tick;
-            timer.Start();
-        }
-
-        private void Timer_OPC_Tick(object sender, EventArgs e)
-        {
-            var writeItems = GetWriteItems();
-
-            object[] values  = { wStart, wReset };
-            
-            HRESULT[] results = group.Write(writeItems, values);
-
-                      
-        }
 
         public void StartProcedures()
         {
@@ -99,6 +80,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             // OpcDaItemValue[] values = await group.ReadAsync(group.Items);
 
             // -----------WRITE------------ ///
+            writeRoutine = new WriteThread(group, configModel);
             // Prepare items.
             // Write values to the items synchronously.
             // Write values to the items asynchronously.
@@ -144,29 +126,25 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[0]}") //BUSY - READ
             {
-                bool result = CheckAlarm(itemValue);
-                if (result)
-                {
-                    Logger.AddSingleLog(2, $"{configModel.Tags[0]} Alarm went on!", DateTime.Now, Logger.Status.Normal);
-                }
+                rBusy = CheckAlarm(itemValue);
+                
+                Logger.AddSingleLog(2, $"{configModel.Tags[0]} Alarm went on!", DateTime.Now, Logger.Status.Normal);
+                
             }
 
             if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[1]}") //EMERGENCY - READ
             {
-                bool result = CheckAlarm(itemValue);
-                if (result)
-                {
-                    Logger.AddSingleLog(3, $"{configModel.Tags[1]} Alarm went on!", DateTime.Now, Logger.Status.Emergency);
-                }
+                rEmergency = CheckAlarm(itemValue);
+
+                Logger.AddSingleLog(3, $"{configModel.Tags[1]} Alarm went on!", DateTime.Now, Logger.Status.Emergency);
+                
             }
 
             if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[2]}") //
             {
-                bool result = CheckAlarm(itemValue);
-                if (result)
-                {
-                    Logger.AddSingleLog(4, $"{configModel.Tags[2]} Alarm went on!", DateTime.Now, Logger.Status.Error);
-                }
+                rError = CheckAlarm(itemValue);
+                Logger.AddSingleLog(4, $"{configModel.Tags[2]} Alarm went on!", DateTime.Now, Logger.Status.Error);
+                
             }
         }
 
@@ -229,19 +207,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             }
         }
 
-        private List<OpcDaItem> GetWriteItems() 
-        {
-            var list = new List<OpcDaItem>()
-            {
-                group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.Tags[7]}"),
-                group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.Tags[8]}")
-            };
-             
-            //OpcDaItem boolStart = group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_START", false)}");
-            //OpcDaItem boolReset = group.Items.FirstOrDefault(i => i.ItemId == $"{configModel.DeviceName}.{configModel.ReturnItem("BOOL_RESET", false)}");
-
-            return list.Where(i => i != null).ToList();
-        }
+        
 
         public void TryConnect(OpcDaServer server)
         {
@@ -253,28 +219,6 @@ namespace Trabalho3_Sistemas_Supervisorios
             catch(Exception e)
             {
                 MessageBox.Show(e.Message);
-            }
-        }
-
-        void BrowseChildren(IOpcDaBrowser browser, string itemId = null, int indent = 0)
-        {
-            // When itemId is null, root elements will be browsed.
-            OpcDaBrowseElement[] elements = browser.GetElements(itemId);
-
-            
-            // Output elements.
-            foreach (OpcDaBrowseElement element in elements)
-            {
-                // Output the element.
-                //_debugStreamWriter.Write(new String(' ', indent));
-                //_debugStreamWriter.WriteLine(element.Name);
-
-                // Skip elements without children.
-                if (!element.HasChildren)
-                    continue;
-
-                // Output children of the element.
-                BrowseChildren(browser, element.ItemId, indent + 2);
             }
         }
 
@@ -298,11 +242,11 @@ namespace Trabalho3_Sistemas_Supervisorios
         }
 
 
-        private bool _isClosing;
         private async void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             _isClosing = true;
             readRoutine.CloseThread();
+            writeRoutine.CloseThread();
 
             var taskModel = SaveConfigModel();
             var taskLogger = Logger.SaveAsync(_loggerFolder);
@@ -318,12 +262,8 @@ namespace Trabalho3_Sistemas_Supervisorios
         {
             using (StreamWriter sw = new StreamWriter(_modelPath))
             {
-                //using (JsonWriter writer = new JsonTextWriter(sw))
-                //{
-                   // jsonSerializer.Serialize(writer, configModel);
-                    var str = JsonConvert.SerializeObject(configModel, Formatting.Indented);
-                    sw.Write(str);
-                //}
+                var str = JsonConvert.SerializeObject(configModel, Formatting.Indented);
+                sw.Write(str);
             }
 
 
@@ -344,11 +284,13 @@ namespace Trabalho3_Sistemas_Supervisorios
         private void buttonStart_Click(object sender, EventArgs e)
         {
             wStart = !wStart;
+            writeRoutine.SetStart(wStart);
         }
 
         private void buttonReset_Click(object sender, EventArgs e)
         {
             wReset = !wReset;
+            writeRoutine.SetReset(wReset);
         }
 
         //DEPRECATED

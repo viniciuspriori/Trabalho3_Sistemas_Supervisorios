@@ -16,7 +16,6 @@ namespace Trabalho3_Sistemas_Supervisorios
     public static class Logger
     {
         static List<EventModel> events = new List<EventModel>();
-
         public static void AddSingleLog(int id, string message, DateTime time, Status status) //adiciona um novo log à lista
         {
             events.Add(new EventModel
@@ -37,7 +36,7 @@ namespace Trabalho3_Sistemas_Supervisorios
         public static async Task<bool?> SaveAsync(string folderPath) //salva a lista de forma assíncrona
         {
             var logPath = Path.Combine(folderPath, $"log - {DateTime.Now.ToString("yyyy-MM-dd")}.txt");
-            bool success = false;
+            bool success;
 
             var jsonString = new string[] { JsonConvert.SerializeObject(events, Formatting.Indented) };
             try
@@ -60,7 +59,7 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         public static bool Save(string folderPath) //salva a lista de logs de forma síncrona
         {
-            var logPath = Path.Combine(folderPath, "log.txt");
+            var logPath = Path.Combine(folderPath, $"log - {DateTime.Now.ToString("yyyy-MM-dd")}.txt");
 
             var jsonString = new string[] { JsonConvert.SerializeObject(events, Formatting.Indented) };
             try
