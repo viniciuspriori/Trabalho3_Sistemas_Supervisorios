@@ -16,6 +16,7 @@ using Newtonsoft.Json.Linq;
 using Timer = System.Windows.Forms.Timer;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Reflection;
 
 namespace Trabalho3_Sistemas_Supervisorios
 {
@@ -24,18 +25,18 @@ namespace Trabalho3_Sistemas_Supervisorios
         private OpcDaServer server;
         //private StreamWriter _debugStreamWriter;
         private bool _isClosing;
-        ConfigModel configModel;
-        string _modelPath = Path.Combine(Environment.CurrentDirectory, "configModel.json");
+        ConfigManager _manager;
         string _loggerFolder = Path.Combine(Environment.CurrentDirectory);
+
         OpcDaGroup group;
         bool wStart, wReset = false;
+        bool rBusy, rError, rEmergency;
 
         private ReadThread readRoutine;
         private WriteThread writeRoutine;
 
         List<Control> readControls;
-        bool rBusy, rError, rEmergency;
-        Timer timer;
+        Timer timerLog;
 
         public Form1()
         {
@@ -45,18 +46,19 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             readControls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
 
-            configModel = new ConfigModel();
-            configModel.Default();
-            configModel = OpenConfigModel();
+            _manager = new ConfigManager();
+
+
             //var path = Path.Combine(Environment.CurrentDirectory, "browseelements.txt");
             //_debugStreamWriter = new System.IO.StreamWriter(path);
 
-            StartProcedures();
+            StartOPCProcedures();
 
             ConfigureTimer();
 
             Logger.AddSingleLog(0, "Application started", DateTime.Now, Logger.Status.Normal);
         }
+
 
         public void MoveBigLogs() //Delete Larger Files
         {
@@ -71,53 +73,47 @@ namespace Trabalho3_Sistemas_Supervisorios
             }
         }
 
-        public void StartProcedures()
+        public void StartOPCProcedures()
         {
+            /// ---------- ESTABLISH CONNECTION ----------- ///
             Uri url = UrlBuilder.Build($"Kepware.KEPServerEX.V6/{configModel.DeviceName}");
             server = new OpcDaServer(url);
-            //using (var server = new OpcDaServer(url))
-            //{
-
-            // Connect to the server first.
-            if (!server.IsConnected)
             {
                 TryConnect(server);
             }
 
-            /// ----------GROUP----------- ///
+            /// ---------- CREATE GROUP ----------- ///
             CreateGroup();
 
             /// ----------- READ ------------ ///
-            //Read all items of the group synchronously.
             readRoutine = new ReadThread(group);
             readRoutine.OnReadGroup += ReadRoutine_OnReadGroup;
 
-            // -----------WRITE------------ ///
+            /// ----------- WRITE ------------ ///
             writeRoutine = new WriteThread(group, configModel);
-
         }
 
         public void ConfigureTimer()
         {
-            timer = new Timer();
-            timer.Interval = 5000;
-            timer.Tick += Timer_Log_Tick;
-            timer.Start();
+            timerLog = new Timer();
+            timerLog.Interval = 2500;
+            timerLog.Tick += Timer_Log_Tick;
+            timerLog.Start();
         }
 
         private void Timer_Log_Tick(object sender, EventArgs e)
         {
             if(rBusy)
             {
-                Logger.AddSingleLog(2, $"{configModel.Tags[0]} Alarm went on!", DateTime.Now, Logger.Status.Normal);
+                Logger.AddSingleLog(2, $"{_manager.GetTagName(0)} Alarm went on!", DateTime.Now, Logger.Status.Normal);
             }
             if(rEmergency)
             {
-                Logger.AddSingleLog(2, $"{configModel.Tags[1]} Alarm went on!", DateTime.Now, Logger.Status.Emergency);
+                Logger.AddSingleLog(2, $"{_manager.GetTagName(1)} Alarm went on!", DateTime.Now, Logger.Status.Emergency);
             }
             if(rError)
             {
-                Logger.AddSingleLog(2, $"{configModel.Tags[2]} Alarm went on!", DateTime.Now, Logger.Status.Error);
+                Logger.AddSingleLog(2, $"{_manager.GetTagName(2)} Alarm went on!", DateTime.Now, Logger.Status.Error);
             }
         }
 
@@ -139,7 +135,7 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             for (int i = 0; i < configModel.Tags.Count; i++)
             {
-                var item = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[i]}");
+                var item = listfromopc.FirstOrDefault(r => r.Item.ItemId == _manager.GetTagAddressByIndex(i));
 
                 CheckReceivedValues(item);
             }
@@ -147,29 +143,30 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         private void CheckReceivedValues(OpcDaItemValue itemValue)
         {
-            if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[3]}") //NUM OPACAS - READ
-            {
-                SetText(itemValue.Value.ToString(), readControls[0]);
-            }
 
-            if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[4]}") //NUM TRANSP - READ
-            {
-                SetText(itemValue.Value.ToString(), readControls[1]);
-            }
-
-            if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[0]}") //BUSY - READ
+            if (itemValue.Item.ItemId == _manager.GetTagAddressByIndex(0)) //BUSY - READ ALARM
             {
                 rBusy = CheckAlarm(itemValue);
             }
 
-            if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[1]}") //EMERGENCY - READ
+            if (itemValue.Item.ItemId == _manager.GetTagAddressByIndex(1)) //EMERGENCY - READ ALARM
             {
                 rEmergency = CheckAlarm(itemValue);
             }
 
-            if (itemValue.Item.ItemId == $"{configModel.DeviceName}.{configModel.Tags[2]}") //
+            if (itemValue.Item.ItemId == _manager.GetTagAddressByIndex(2)) //ERROR - READ ALARM
             {
                 rError = CheckAlarm(itemValue);
+            }
+
+            if (itemValue.Item.ItemId == _manager.GetTagAddressByIndex(3)) //NUM OPACAS - READ
+            {
+                SetText(itemValue.Value.ToString(), readControls[0]);
+            }
+
+            if (itemValue.Item.ItemId == _manager.GetTagAddressByIndex(4)) //NUM TRANSP - READ
+            {
+                SetText(itemValue.Value.ToString(), readControls[1]);
             }
         }
 
@@ -199,7 +196,6 @@ namespace Trabalho3_Sistemas_Supervisorios
                 control.Text = text;
             }
         }
-
 
         public void CreateGroup()
         {
@@ -233,8 +229,6 @@ namespace Trabalho3_Sistemas_Supervisorios
             }
         }
 
-        
-
         public void TryConnect(OpcDaServer server)
         {
             try
@@ -248,26 +242,6 @@ namespace Trabalho3_Sistemas_Supervisorios
             }
         }
 
-        public ConfigModel OpenConfigModel()
-        {
-            if (File.Exists(_modelPath) && new FileInfo(_modelPath).Length > 0)
-            {
-                using (StreamReader file = File.OpenText(_modelPath))
-                using (JsonTextReader reader = new JsonTextReader(file))
-                {
-                    JObject config = (JObject)JToken.ReadFrom(reader);
-                    return JsonConvert.DeserializeObject<ConfigModel>(config.ToString());
-                };
-            }
-            else
-            {
-                var newConfig = new ConfigModel();
-                newConfig.Default();
-                return newConfig;
-            }
-        }
-
-
         private async void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             Logger.AddSingleLog(-1, "Application is closing", DateTime.Now, Logger.Status.Normal);
@@ -276,37 +250,12 @@ namespace Trabalho3_Sistemas_Supervisorios
             readRoutine.CloseThread();
             writeRoutine.CloseThread();
 
-            var taskModel = SaveConfigModel();
+            var taskModel = _manager.SaveConfigModel();
             var taskLogger = Logger.SaveAsync(_loggerFolder);
-            //Logger.Save(_loggerFolder);
 
             await Task.WhenAll(taskModel, taskLogger);
 
             Environment.Exit(0);
-        }
-
-
-        public async Task SaveConfigModel()
-        {
-            using (StreamWriter sw = new StreamWriter(_modelPath))
-            {
-                var str = JsonConvert.SerializeObject(configModel, Formatting.Indented);
-                sw.Write(str);
-            }
-
-
-            await Task.Delay(500);
-        }
-
-        public void AdjustControls()
-        {
-            labelContadorDePecas.TextAlign = ContentAlignment.MiddleLeft;
-            labelContadorDePecas.Location = new Point((panel1.Width / 2 - labelContadorDePecas.Width / 2), labelContadorDePecas.Location.Y);
-
-            labelCountGeral.TextAlign = ContentAlignment.MiddleLeft;
-            labelCountGeral.Location = new Point((panel1.Width / 2 - labelCountGeral.Width / 2), labelCountGeral.Location.Y);
-
-            labelEstadoEsteira.Location = new Point((panel1.Width / 2 - labelEstadoEsteira.Width / 2), labelEstadoEsteira.Location.Y);
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
@@ -321,24 +270,15 @@ namespace Trabalho3_Sistemas_Supervisorios
             writeRoutine.SetReset(wReset);
         }
 
-        //DEPRECATED
-        //static void OnGroupValuesChanged(object sender, OpcDaItemValuesChangedEventArgs args)
-        //{
-        //    // Output values.
-        //    foreach (OpcDaItemValue value in args.Values)
-        //    {
-        //        if(value.Item.ItemId == $"{deviceName}.Emergency")
-        //        {
-        //            _textbox = value.Value.ToString();
-        //        }
-        //        //Console.WriteLine("ItemId: {0}; Value: {1}; Quality: {2}; Timestamp: {3}",
-        //        //    value.Item.ItemId, value.Value, value.Quality, value.Timestamp);
-        //    }
-        //}
+        public void AdjustControls()
+        {
+            labelContadorDePecas.TextAlign = ContentAlignment.MiddleLeft;
+            labelContadorDePecas.Location = new Point((panel1.Width / 2 - labelContadorDePecas.Width / 2), labelContadorDePecas.Location.Y);
 
-        /// ----------- SUBSCRIPTION ------------ ///
-        // Configure subscription.
-        //group.ValuesChanged += OnGroupValuesChanged;
-        //group.UpdateRate = TimeSpan.FromMilliseconds(100); // ValuesChanged won't be triggered if zero
+            labelCountGeral.TextAlign = ContentAlignment.MiddleLeft;
+            labelCountGeral.Location = new Point((panel1.Width / 2 - labelCountGeral.Width / 2), labelCountGeral.Location.Y);
+
+            labelEstadoEsteira.Location = new Point((panel1.Width / 2 - labelEstadoEsteira.Width / 2), labelEstadoEsteira.Location.Y);
+        }
     }
 }
