@@ -9,12 +9,14 @@ namespace Trabalho3_Sistemas_Supervisorios
     public class ConfigModel
     {
         public string DeviceName { get; set; }
+        public string ServerName { get; set; }
 
         public Dictionary<int, string> Tags { get; set; }
 
         public void Default()
         {
             DeviceName = "Channel1.Device1";
+            ServerName = "Kepware.KEPServerEX.V6";
 
             Tags = new Dictionary<int, string>()
             {
@@ -27,7 +29,6 @@ namespace Trabalho3_Sistemas_Supervisorios
                 [6] = "Transparent",
                 [7] = "Start",
                 [8] = "Reset"
-
             };
         }
 

@@ -28,6 +28,16 @@ namespace Trabalho3_Sistemas_Supervisorios
         public string GetTagName(int index) =>
             ConfigModel.Tags[index];
 
+        public int GetTagsCount() => ConfigModel.Tags.Count;
+
+        public string GetServerUrl() => $"{ConfigModel.ServerName}/{ConfigModel.DeviceName}";
+
+        public ConfigModel GetConfigModel() => ConfigModel;
+
+        public Dictionary<int, string> GetTags() => ConfigModel.Tags;
+
+        public string GetDeviceName() => ConfigModel.DeviceName;
+
         public ConfigModel OpenConfigModel()
         {
             if (File.Exists(_modelPath) && new FileInfo(_modelPath).Length > 0)

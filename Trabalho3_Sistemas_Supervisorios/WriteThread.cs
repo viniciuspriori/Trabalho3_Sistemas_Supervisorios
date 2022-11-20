@@ -20,7 +20,7 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         public bool wStart { get; set; }
         public bool wReset { get; set; }
-        public ConfigModel configModel { get; }
+        private ConfigModel configModel { get; }
 
         object _synclock;
 
@@ -32,17 +32,14 @@ namespace Trabalho3_Sistemas_Supervisorios
             thread = new Thread(Work);
             IsRunning = true;
             _synclock = new object();
+            thread.Name = "WriteThread";
             thread.Start();
         }
 
-        public void SetStart(bool val)
+        public void Write(object[] values)
         {
-            wStart = val;
-        }
-
-        public void SetReset(bool val)
-        {
-            wReset = val;
+            wStart = (bool)values[0];
+            wReset = (bool)values[1];
         }
 
         public void CloseThread()

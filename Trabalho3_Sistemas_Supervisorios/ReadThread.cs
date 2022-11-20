@@ -21,7 +21,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             _group = group;
             thread = new Thread(Work);
             IsRunning = true;
-
+            thread.Name = "ReadThread";
             thread.Start();
             
         }

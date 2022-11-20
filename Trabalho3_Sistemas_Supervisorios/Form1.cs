@@ -22,18 +22,12 @@ namespace Trabalho3_Sistemas_Supervisorios
 {
     public partial class Form1 : Form
     {
-        private OpcDaServer server;
-        //private StreamWriter _debugStreamWriter;
-        private bool _isClosing;
-        ConfigManager _manager;
+        ConfigManager _configManager;
+        OpcManager _opcManager;
         string _loggerFolder = Path.Combine(Environment.CurrentDirectory);
 
-        OpcDaGroup group;
         bool wStart, wReset = false;
         bool rBusy, rError, rEmergency;
-
-        private ReadThread readRoutine;
-        private WriteThread writeRoutine;
 
         List<Control> readControls;
         Timer timerLog;
@@ -42,23 +36,25 @@ namespace Trabalho3_Sistemas_Supervisorios
         {
             InitializeComponent();
 
+            AdjustControls();
             MoveBigLogs();
+
+            
 
             readControls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
 
-            _manager = new ConfigManager();
+            _configManager = new ConfigManager();
+            _opcManager = new OpcManager(_configManager);
+            _opcManager.OnReadManager += _opcManager_OnReadManager;
 
-
-            //var path = Path.Combine(Environment.CurrentDirectory, "browseelements.txt");
-            //_debugStreamWriter = new System.IO.StreamWriter(path);
-
-            StartOPCProcedures();
-
-            ConfigureTimer();
-
+            ConfigureLoggerTimer();
             Logger.AddSingleLog(0, "Application started", DateTime.Now, Logger.Status.Normal);
         }
 
+        private void _opcManager_OnReadManager(object sender, OpcDaItemValue valuesFromManager)
+        {
+            CheckReceivedValues(valuesFromManager);
+        }
 
         public void MoveBigLogs() //Delete Larger Files
         {
@@ -73,27 +69,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             }
         }
 
-        public void StartOPCProcedures()
-        {
-            /// ---------- ESTABLISH CONNECTION ----------- ///
-            Uri url = UrlBuilder.Build($"Kepware.KEPServerEX.V6/{configModel.DeviceName}");
-            server = new OpcDaServer(url);
-            {
-                TryConnect(server);
-            }
-
-            /// ---------- CREATE GROUP ----------- ///
-            CreateGroup();
-
-            /// ----------- READ ------------ ///
-            readRoutine = new ReadThread(group);
-            readRoutine.OnReadGroup += ReadRoutine_OnReadGroup;
-
-            /// ----------- WRITE ------------ ///
-            writeRoutine = new WriteThread(group, configModel);
-        }
-
-        public void ConfigureTimer()
+        public void ConfigureLoggerTimer()
         {
             timerLog = new Timer();
             timerLog.Interval = 2500;
@@ -105,66 +81,42 @@ namespace Trabalho3_Sistemas_Supervisorios
         {
             if(rBusy)
             {
-                Logger.AddSingleLog(2, $"{_manager.GetTagName(0)} Alarm went on!", DateTime.Now, Logger.Status.Normal);
+                Logger.AddSingleLog(2, $"{_configManager.GetTagName(0)} Alarm went on!", DateTime.Now, Logger.Status.Normal);
             }
             if(rEmergency)
             {
-                Logger.AddSingleLog(2, $"{_manager.GetTagName(1)} Alarm went on!", DateTime.Now, Logger.Status.Emergency);
+                Logger.AddSingleLog(2, $"{_configManager.GetTagName(1)} Alarm went on!", DateTime.Now, Logger.Status.Emergency);
             }
             if(rError)
             {
-                Logger.AddSingleLog(2, $"{_manager.GetTagName(2)} Alarm went on!", DateTime.Now, Logger.Status.Error);
-            }
-        }
-
-        private void ReadRoutine_OnReadGroup(object sender, List<OpcDaItemValue> valuesList)
-        {
-            if (!_isClosing)
-                GetReadItem(valuesList);
-        }
-
-        private void GetReadItem(List<OpcDaItemValue> listfromopc)
-        {
-            //var busy = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[0]}");
-            //var emergency = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[1]}");
-            //var error = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[2]}");
-            //var numOpcOpaque = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[3]}");
-            //var numTransp = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[4]}");
-            //var opaque = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[5]}");
-            //var transp = listfromopc.FirstOrDefault(r => r.Item.ItemId == $"{configModel.DeviceName}.{configModel.TagsRead[6]}");
-
-            for (int i = 0; i < configModel.Tags.Count; i++)
-            {
-                var item = listfromopc.FirstOrDefault(r => r.Item.ItemId == _manager.GetTagAddressByIndex(i));
-
-                CheckReceivedValues(item);
+                Logger.AddSingleLog(2, $"{_configManager.GetTagName(2)} Alarm went on!", DateTime.Now, Logger.Status.Error);
             }
         }
 
         private void CheckReceivedValues(OpcDaItemValue itemValue)
         {
 
-            if (itemValue.Item.ItemId == _manager.GetTagAddressByIndex(0)) //BUSY - READ ALARM
+            if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(0)) //BUSY - READ ALARM
             {
                 rBusy = CheckAlarm(itemValue);
             }
 
-            if (itemValue.Item.ItemId == _manager.GetTagAddressByIndex(1)) //EMERGENCY - READ ALARM
+            if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(1)) //EMERGENCY - READ ALARM
             {
                 rEmergency = CheckAlarm(itemValue);
             }
 
-            if (itemValue.Item.ItemId == _manager.GetTagAddressByIndex(2)) //ERROR - READ ALARM
+            if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(2)) //ERROR - READ ALARM
             {
                 rError = CheckAlarm(itemValue);
             }
 
-            if (itemValue.Item.ItemId == _manager.GetTagAddressByIndex(3)) //NUM OPACAS - READ
+            if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(3)) //NUM OPACAS - READ
             {
                 SetText(itemValue.Value.ToString(), readControls[0]);
             }
 
-            if (itemValue.Item.ItemId == _manager.GetTagAddressByIndex(4)) //NUM TRANSP - READ
+            if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(4)) //NUM TRANSP - READ
             {
                 SetText(itemValue.Value.ToString(), readControls[1]);
             }
@@ -197,60 +149,14 @@ namespace Trabalho3_Sistemas_Supervisorios
             }
         }
 
-        public void CreateGroup()
-        {
-            // Create a group with items.
-            group = server.AddGroup("MyGroup");
-            group.IsActive = true;
-
-            var listDefintions = new List<OpcDaItemDefinition>();
-
-            foreach (var item in configModel.Tags)
-            {
-                listDefintions.Add(
-                    new OpcDaItemDefinition
-                    {
-                        ItemId = $"{configModel.DeviceName}.{item.Value}",
-                        IsActive = true
-                    });
-            }
-
-            OpcDaItemResult[] results = group.AddItems(listDefintions);
-
-            //// Handle adding results.
-            foreach (OpcDaItemResult result in results)
-            {
-                if (result.Error.Failed)
-                {                    
-                    MessageBox.Show($"{result.Error}", "Application will close");
-                    Logger.AddSingleLog(-100, "Application is closing", DateTime.Now, Logger.Status.Error);
-                    Environment.Exit(0);
-                }
-            }
-        }
-
-        public void TryConnect(OpcDaServer server)
-        {
-            try
-            {
-                server.Connect();
-                Thread.Sleep(100);
-            }
-            catch(Exception e)
-            {
-                MessageBox.Show(e.Message);
-            }
-        }
 
         private async void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             Logger.AddSingleLog(-1, "Application is closing", DateTime.Now, Logger.Status.Normal);
 
-            _isClosing = true;
-            readRoutine.CloseThread();
-            writeRoutine.CloseThread();
+            _opcManager.Kill();
 
-            var taskModel = _manager.SaveConfigModel();
+            var taskModel = _configManager.SaveConfigModel();
             var taskLogger = Logger.SaveAsync(_loggerFolder);
 
             await Task.WhenAll(taskModel, taskLogger);
@@ -261,13 +167,13 @@ namespace Trabalho3_Sistemas_Supervisorios
         private void buttonStart_Click(object sender, EventArgs e)
         {
             wStart = !wStart;
-            writeRoutine.SetStart(wStart);
+            _opcManager.Write(new object[] { wStart, wReset });
         }
 
         private void buttonReset_Click(object sender, EventArgs e)
         {
             wReset = !wReset;
-            writeRoutine.SetReset(wReset);
+            _opcManager.Write(new object[] { wStart, wReset });
         }
 
         public void AdjustControls()
