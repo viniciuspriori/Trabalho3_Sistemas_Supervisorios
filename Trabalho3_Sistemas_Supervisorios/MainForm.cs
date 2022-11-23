@@ -19,6 +19,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Reflection;
 using Trabalho3_Sistemas_Supervisorios.Config;
 using Trabalho3_Sistemas_Supervisorios.OpcService;
+using Trabalho3_Sistemas_Supervisorios.Properties;
 
 namespace Trabalho3_Sistemas_Supervisorios
 {
@@ -29,27 +30,31 @@ namespace Trabalho3_Sistemas_Supervisorios
         string _loggerFolder = Path.Combine(Environment.CurrentDirectory); //pasta do log
 
         bool wStart, wReset = false; //booleanas de escrita
-        bool rBusy, rError, rEmergency; //booleanas de leitura
+        bool rBusy, rError, rEmergency, rStart; //booleanas de leitura
 
         List<Control> readControls; //lista de controles associados à leitura em tempo real do OPC
-        Timer timerLog; //timer do log de evento
+        Timer timerLog, timerUI; //timer do log de evento
 
         int countGeralOpacas, countGeralTransp; //contadores gerais
+        bool stateEmergencyLed;
 
         public MainForm()
         {
             InitializeComponent();
 
             AdjustControls();
+
             MoveBigLogs();
-            
+
+            ConfigureTimers();
+
             readControls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
 
             _configManager = new ConfigManager();
             _opcManager = new OpcManager(_configManager);
             _opcManager.OnReadManager += _opcManager_OnReadManager;
 
-            ConfigureLoggerTimer();
+
             Logger.AddSingleLog(0, "Application started", DateTime.Now, Logger.Status.Normal);
         }
 
@@ -72,12 +77,38 @@ namespace Trabalho3_Sistemas_Supervisorios
             }
         }
 
-        public void ConfigureLoggerTimer() //timer do log. escreve as tags no arquivo de texto de 2,5 em 2,5 segundos
+        public void ConfigureTimers() //timer do log. escreve as tags no arquivo de texto de 2,5 em 2,5 segundos
         {
             timerLog = new Timer();
             timerLog.Interval = 2500;
             timerLog.Tick += Timer_Log_Tick;
             timerLog.Start();
+
+            timerUI = new Timer();
+            timerUI.Interval = 500;
+            timerUI.Tick += TimerUI_Tick;
+            timerUI.Start();
+        }
+
+        private void TimerUI_Tick(object sender, EventArgs e)
+        {
+            pictureBoxOnOff.Image = rStart ? Resources.lig : Resources.desl;
+
+            if (rEmergency)
+            {
+                stateEmergencyLed = !stateEmergencyLed;
+                TogglePictureBox();
+            }
+            else
+            {
+                stateEmergencyLed = false;
+                pictureBoxEmergency.Image = Resources.lig;
+            }
+        }
+
+        public void TogglePictureBox()
+        {
+            pictureBoxEmergency.Image = stateEmergencyLed ? Resources.lig : Resources.desl;
         }
 
         private void Timer_Log_Tick(object sender, EventArgs e) //adiciona ao log caso um alarme seja disparado
@@ -126,7 +157,13 @@ namespace Trabalho3_Sistemas_Supervisorios
             {
                 SetText(itemValue.Value.ToString(), readControls[1]);
             }
+
+            if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(7)) //START
+            {
+                rStart = CheckAlarm(itemValue);
+            }
         }
+
 
         public bool CheckAlarm(OpcDaItemValue alarm) //checa estado dos alarmes
         {
@@ -201,13 +238,14 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         public void AdjustControls() //centraliza os controles na interface
         {
+            pictureBoxEmergency.Image = Resources.lig;
+            pictureBoxOnOff.Image = Resources.desl;
+
             labelContadorDePecas.TextAlign = ContentAlignment.MiddleLeft;
             labelContadorDePecas.Location = new Point((panel1.Width / 2 - labelContadorDePecas.Width / 2), labelContadorDePecas.Location.Y);
 
             labelCountGeral.TextAlign = ContentAlignment.MiddleLeft;
             labelCountGeral.Location = new Point((panel1.Width / 2 - labelCountGeral.Width / 2), labelCountGeral.Location.Y);
-
-            labelEstadoEsteira.Location = new Point((panel1.Width / 2 - labelEstadoEsteira.Width / 2), labelEstadoEsteira.Location.Y);
         }
     }
 }

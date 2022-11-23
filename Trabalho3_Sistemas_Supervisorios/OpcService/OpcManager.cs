@@ -79,7 +79,7 @@ namespace Trabalho3_Sistemas_Supervisorios.OpcService
         public void TryConnect()
         {
             var count = 0;
-            while (!server.IsConnected && count < 3) //try connect upt to 3 times, if can't, close application
+            while (!server.IsConnected && count < 3) //try connect up to 3 times, if can't, close application
             {
                 try
                 {

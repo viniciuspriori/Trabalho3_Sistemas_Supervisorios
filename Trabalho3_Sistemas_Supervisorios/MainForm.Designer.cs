@@ -42,11 +42,19 @@
             this.textBoxCountOpacas = new System.Windows.Forms.TextBox();
             this.labelCountGeral = new System.Windows.Forms.Label();
             this.labelContadorDePecas = new System.Windows.Forms.Label();
+            this.pictureBoxOnOff = new System.Windows.Forms.PictureBox();
+            this.pictureBoxEmergency = new System.Windows.Forms.PictureBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOnOff)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxEmergency)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Controls.Add(this.pictureBoxEmergency);
+            this.panel1.Controls.Add(this.pictureBoxOnOff);
             this.panel1.Controls.Add(this.labelEstadoEsteira);
             this.panel1.Controls.Add(this.buttonReset);
             this.panel1.Controls.Add(this.buttonStart);
@@ -62,21 +70,21 @@
             this.panel1.Controls.Add(this.labelContadorDePecas);
             this.panel1.Location = new System.Drawing.Point(49, 26);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(364, 324);
+            this.panel1.Size = new System.Drawing.Size(364, 341);
             this.panel1.TabIndex = 0;
             // 
             // labelEstadoEsteira
             // 
             this.labelEstadoEsteira.AutoSize = true;
-            this.labelEstadoEsteira.Location = new System.Drawing.Point(145, 235);
+            this.labelEstadoEsteira.Location = new System.Drawing.Point(75, 221);
             this.labelEstadoEsteira.Name = "labelEstadoEsteira";
-            this.labelEstadoEsteira.Size = new System.Drawing.Size(79, 13);
+            this.labelEstadoEsteira.Size = new System.Drawing.Size(40, 13);
             this.labelEstadoEsteira.TabIndex = 12;
-            this.labelEstadoEsteira.Text = "Esteira Parada.";
+            this.labelEstadoEsteira.Text = "On/Off";
             // 
             // buttonReset
             // 
-            this.buttonReset.Location = new System.Drawing.Point(215, 265);
+            this.buttonReset.Location = new System.Drawing.Point(215, 292);
             this.buttonReset.Name = "buttonReset";
             this.buttonReset.Size = new System.Drawing.Size(107, 37);
             this.buttonReset.TabIndex = 11;
@@ -86,7 +94,7 @@
             // 
             // buttonStart
             // 
-            this.buttonStart.Location = new System.Drawing.Point(43, 265);
+            this.buttonStart.Location = new System.Drawing.Point(43, 292);
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(107, 37);
             this.buttonStart.TabIndex = 10;
@@ -182,17 +190,46 @@
             this.labelContadorDePecas.TabIndex = 0;
             this.labelContadorDePecas.Text = "Contador de Peças";
             // 
-            // Form1
+            // pictureBoxOnOff
+            // 
+            this.pictureBoxOnOff.InitialImage = null;
+            this.pictureBoxOnOff.Location = new System.Drawing.Point(64, 237);
+            this.pictureBoxOnOff.Name = "pictureBoxOnOff";
+            this.pictureBoxOnOff.Size = new System.Drawing.Size(61, 36);
+            this.pictureBoxOnOff.TabIndex = 13;
+            this.pictureBoxOnOff.TabStop = false;
+            // 
+            // pictureBoxEmergency
+            // 
+            this.pictureBoxEmergency.InitialImage = null;
+            this.pictureBoxEmergency.Location = new System.Drawing.Point(237, 237);
+            this.pictureBoxEmergency.Name = "pictureBoxEmergency";
+            this.pictureBoxEmergency.Size = new System.Drawing.Size(61, 36);
+            this.pictureBoxEmergency.TabIndex = 14;
+            this.pictureBoxEmergency.TabStop = false;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(235, 221);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(63, 13);
+            this.label3.TabIndex = 15;
+            this.label3.Text = "Emergência";
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(472, 406);
             this.Controls.Add(this.panel1);
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Text = "Form1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOnOff)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxEmergency)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -213,6 +250,9 @@
         private System.Windows.Forms.Label labelEstadoEsteira;
         private System.Windows.Forms.Button buttonReset;
         private System.Windows.Forms.Button buttonStart;
+        private System.Windows.Forms.PictureBox pictureBoxEmergency;
+        private System.Windows.Forms.PictureBox pictureBoxOnOff;
+        private System.Windows.Forms.Label label3;
     }
 }
 
