@@ -46,6 +46,8 @@ namespace Trabalho3_Sistemas_Supervisorios.Config
 
         public string GetDeviceName() => ConfigModel.DeviceName;
 
+        public Tuple<int, int> GetTotalizers() => Tuple.Create(ConfigModel.TotalizadorOpaca, ConfigModel.TotalizadorTransp);
+
         public ConfigModel OpenConfigModel() //pega do arquivo salvo se houver e tiver algo escrito, se não houver cria outro com configurações padrão
         {
             if (File.Exists(_modelPath) && new FileInfo(_modelPath).Length > 0)

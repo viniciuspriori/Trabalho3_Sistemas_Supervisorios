@@ -50,7 +50,13 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             readControls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
 
+            
             _configManager = new ConfigManager();
+            var tupleTotalizers = _configManager.GetTotalizers();
+            textBoxCountGeralOpacas.Text = tupleTotalizers.Item1.ToString();
+            textBoxCountGeralTransp.Text = tupleTotalizers.Item2.ToString();
+
+
             _opcManager = new OpcManager(_configManager);
             _opcManager.OnReadManager += _opcManager_OnReadManager;
 
