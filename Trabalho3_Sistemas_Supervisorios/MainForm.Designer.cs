@@ -28,7 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.labelChegouTransp = new System.Windows.Forms.Label();
+            this.labelChegouOpaca = new System.Windows.Forms.Label();
+            this.labelBusy = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.pictureBoxEmergency = new System.Windows.Forms.PictureBox();
             this.pictureBoxOnOff = new System.Windows.Forms.PictureBox();
@@ -45,12 +49,11 @@
             this.textBoxCountOpacas = new System.Windows.Forms.TextBox();
             this.labelCountGeral = new System.Windows.Forms.Label();
             this.labelContadorDePecas = new System.Windows.Forms.Label();
-            this.labelBusy = new System.Windows.Forms.Label();
-            this.labelChegouOpaca = new System.Windows.Forms.Label();
-            this.labelChegouTransp = new System.Windows.Forms.Label();
+            this.pictureBoxEsteira = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxEmergency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOnOff)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxEsteira)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -78,6 +81,33 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(364, 341);
             this.panel1.TabIndex = 0;
+            // 
+            // labelChegouTransp
+            // 
+            this.labelChegouTransp.AutoSize = true;
+            this.labelChegouTransp.Location = new System.Drawing.Point(209, 96);
+            this.labelChegouTransp.Name = "labelChegouTransp";
+            this.labelChegouTransp.Size = new System.Drawing.Size(113, 13);
+            this.labelChegouTransp.TabIndex = 18;
+            this.labelChegouTransp.Text = "Chegou Transparente!";
+            // 
+            // labelChegouOpaca
+            // 
+            this.labelChegouOpaca.AutoSize = true;
+            this.labelChegouOpaca.Location = new System.Drawing.Point(61, 96);
+            this.labelChegouOpaca.Name = "labelChegouOpaca";
+            this.labelChegouOpaca.Size = new System.Drawing.Size(82, 13);
+            this.labelChegouOpaca.TabIndex = 17;
+            this.labelChegouOpaca.Text = "Chegou Opaca!";
+            // 
+            // labelBusy
+            // 
+            this.labelBusy.AutoSize = true;
+            this.labelBusy.Location = new System.Drawing.Point(131, 250);
+            this.labelBusy.Name = "labelBusy";
+            this.labelBusy.Size = new System.Drawing.Size(89, 13);
+            this.labelBusy.TabIndex = 16;
+            this.labelBusy.Text = "Esteira Ocupada.";
             // 
             // label3
             // 
@@ -223,46 +253,30 @@
             this.labelContadorDePecas.TabIndex = 0;
             this.labelContadorDePecas.Text = "Contador de Peças";
             // 
-            // labelBusy
+            // pictureBoxEsteira
             // 
-            this.labelBusy.AutoSize = true;
-            this.labelBusy.Location = new System.Drawing.Point(131, 250);
-            this.labelBusy.Name = "labelBusy";
-            this.labelBusy.Size = new System.Drawing.Size(89, 13);
-            this.labelBusy.TabIndex = 16;
-            this.labelBusy.Text = "Esteira Ocupada.";
-            // 
-            // labelChegouOpaca
-            // 
-            this.labelChegouOpaca.AutoSize = true;
-            this.labelChegouOpaca.Location = new System.Drawing.Point(61, 96);
-            this.labelChegouOpaca.Name = "labelChegouOpaca";
-            this.labelChegouOpaca.Size = new System.Drawing.Size(82, 13);
-            this.labelChegouOpaca.TabIndex = 17;
-            this.labelChegouOpaca.Text = "Chegou Opaca!";
-            // 
-            // labelChegouTransp
-            // 
-            this.labelChegouTransp.AutoSize = true;
-            this.labelChegouTransp.Location = new System.Drawing.Point(209, 96);
-            this.labelChegouTransp.Name = "labelChegouTransp";
-            this.labelChegouTransp.Size = new System.Drawing.Size(113, 13);
-            this.labelChegouTransp.TabIndex = 18;
-            this.labelChegouTransp.Text = "Chegou Transparente!";
+            this.pictureBoxEsteira.Location = new System.Drawing.Point(459, 66);
+            this.pictureBoxEsteira.Name = "pictureBoxEsteira";
+            this.pictureBoxEsteira.Size = new System.Drawing.Size(598, 259);
+            this.pictureBoxEsteira.TabIndex = 1;
+            this.pictureBoxEsteira.TabStop = false;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(472, 406);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.ClientSize = new System.Drawing.Size(1098, 406);
+            this.Controls.Add(this.pictureBoxEsteira);
             this.Controls.Add(this.panel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
-            this.Text = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Supervisório - Esteira";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxEmergency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOnOff)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxEsteira)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -289,6 +303,7 @@
         private System.Windows.Forms.Label labelBusy;
         private System.Windows.Forms.Label labelChegouTransp;
         private System.Windows.Forms.Label labelChegouOpaca;
+        private System.Windows.Forms.PictureBox pictureBoxEsteira;
     }
 }
 

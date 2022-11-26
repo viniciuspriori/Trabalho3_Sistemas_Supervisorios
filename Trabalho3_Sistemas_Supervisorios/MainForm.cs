@@ -269,6 +269,10 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             //
 
+            this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            this.MaximizeBox = false;
+            
+            pictureBoxEsteira.Image = Resources.esteira;
             pictureBoxEmergency.Image = Resources.lig;
             pictureBoxOnOff.Image = Resources.desl;
 

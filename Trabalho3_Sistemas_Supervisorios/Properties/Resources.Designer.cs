@@ -73,9 +73,29 @@ namespace Trabalho3_Sistemas_Supervisorios.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap esteira {
+            get {
+                object obj = ResourceManager.GetObject("esteira", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap lig {
             get {
                 object obj = ResourceManager.GetObject("lig", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap logoucl {
+            get {
+                object obj = ResourceManager.GetObject("logoucl", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
