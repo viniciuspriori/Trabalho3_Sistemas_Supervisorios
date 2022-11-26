@@ -269,7 +269,7 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             //
 
-            this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             
             pictureBoxEsteira.Image = Resources.esteira;
