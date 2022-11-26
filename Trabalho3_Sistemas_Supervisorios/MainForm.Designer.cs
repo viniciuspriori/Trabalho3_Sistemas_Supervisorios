@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.pictureBoxEmergency = new System.Windows.Forms.PictureBox();
+            this.pictureBoxOnOff = new System.Windows.Forms.PictureBox();
             this.labelEstadoEsteira = new System.Windows.Forms.Label();
             this.buttonReset = new System.Windows.Forms.Button();
             this.buttonStart = new System.Windows.Forms.Button();
@@ -42,16 +45,19 @@
             this.textBoxCountOpacas = new System.Windows.Forms.TextBox();
             this.labelCountGeral = new System.Windows.Forms.Label();
             this.labelContadorDePecas = new System.Windows.Forms.Label();
-            this.pictureBoxOnOff = new System.Windows.Forms.PictureBox();
-            this.pictureBoxEmergency = new System.Windows.Forms.PictureBox();
-            this.label3 = new System.Windows.Forms.Label();
+            this.labelBusy = new System.Windows.Forms.Label();
+            this.labelChegouOpaca = new System.Windows.Forms.Label();
+            this.labelChegouTransp = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOnOff)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxEmergency)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOnOff)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.labelChegouTransp);
+            this.panel1.Controls.Add(this.labelChegouOpaca);
+            this.panel1.Controls.Add(this.labelBusy);
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.pictureBoxEmergency);
             this.panel1.Controls.Add(this.pictureBoxOnOff);
@@ -72,6 +78,33 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(364, 341);
             this.panel1.TabIndex = 0;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(235, 221);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(63, 13);
+            this.label3.TabIndex = 15;
+            this.label3.Text = "Emergência";
+            // 
+            // pictureBoxEmergency
+            // 
+            this.pictureBoxEmergency.InitialImage = null;
+            this.pictureBoxEmergency.Location = new System.Drawing.Point(237, 237);
+            this.pictureBoxEmergency.Name = "pictureBoxEmergency";
+            this.pictureBoxEmergency.Size = new System.Drawing.Size(61, 36);
+            this.pictureBoxEmergency.TabIndex = 14;
+            this.pictureBoxEmergency.TabStop = false;
+            // 
+            // pictureBoxOnOff
+            // 
+            this.pictureBoxOnOff.InitialImage = null;
+            this.pictureBoxOnOff.Location = new System.Drawing.Point(64, 237);
+            this.pictureBoxOnOff.Name = "pictureBoxOnOff";
+            this.pictureBoxOnOff.Size = new System.Drawing.Size(61, 36);
+            this.pictureBoxOnOff.TabIndex = 13;
+            this.pictureBoxOnOff.TabStop = false;
             // 
             // labelEstadoEsteira
             // 
@@ -190,32 +223,32 @@
             this.labelContadorDePecas.TabIndex = 0;
             this.labelContadorDePecas.Text = "Contador de Peças";
             // 
-            // pictureBoxOnOff
+            // labelBusy
             // 
-            this.pictureBoxOnOff.InitialImage = null;
-            this.pictureBoxOnOff.Location = new System.Drawing.Point(64, 237);
-            this.pictureBoxOnOff.Name = "pictureBoxOnOff";
-            this.pictureBoxOnOff.Size = new System.Drawing.Size(61, 36);
-            this.pictureBoxOnOff.TabIndex = 13;
-            this.pictureBoxOnOff.TabStop = false;
+            this.labelBusy.AutoSize = true;
+            this.labelBusy.Location = new System.Drawing.Point(131, 250);
+            this.labelBusy.Name = "labelBusy";
+            this.labelBusy.Size = new System.Drawing.Size(89, 13);
+            this.labelBusy.TabIndex = 16;
+            this.labelBusy.Text = "Esteira Ocupada.";
             // 
-            // pictureBoxEmergency
+            // labelChegouOpaca
             // 
-            this.pictureBoxEmergency.InitialImage = null;
-            this.pictureBoxEmergency.Location = new System.Drawing.Point(237, 237);
-            this.pictureBoxEmergency.Name = "pictureBoxEmergency";
-            this.pictureBoxEmergency.Size = new System.Drawing.Size(61, 36);
-            this.pictureBoxEmergency.TabIndex = 14;
-            this.pictureBoxEmergency.TabStop = false;
+            this.labelChegouOpaca.AutoSize = true;
+            this.labelChegouOpaca.Location = new System.Drawing.Point(61, 96);
+            this.labelChegouOpaca.Name = "labelChegouOpaca";
+            this.labelChegouOpaca.Size = new System.Drawing.Size(82, 13);
+            this.labelChegouOpaca.TabIndex = 17;
+            this.labelChegouOpaca.Text = "Chegou Opaca!";
             // 
-            // label3
+            // labelChegouTransp
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(235, 221);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(63, 13);
-            this.label3.TabIndex = 15;
-            this.label3.Text = "Emergência";
+            this.labelChegouTransp.AutoSize = true;
+            this.labelChegouTransp.Location = new System.Drawing.Point(209, 96);
+            this.labelChegouTransp.Name = "labelChegouTransp";
+            this.labelChegouTransp.Size = new System.Drawing.Size(113, 13);
+            this.labelChegouTransp.TabIndex = 18;
+            this.labelChegouTransp.Text = "Chegou Transparente!";
             // 
             // MainForm
             // 
@@ -228,8 +261,8 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOnOff)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxEmergency)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOnOff)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -253,6 +286,9 @@
         private System.Windows.Forms.PictureBox pictureBoxEmergency;
         private System.Windows.Forms.PictureBox pictureBoxOnOff;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label labelBusy;
+        private System.Windows.Forms.Label labelChegouTransp;
+        private System.Windows.Forms.Label labelChegouOpaca;
     }
 }
 

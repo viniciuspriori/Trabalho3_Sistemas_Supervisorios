@@ -30,7 +30,7 @@ namespace Trabalho3_Sistemas_Supervisorios
         string _loggerFolder = Path.Combine(Environment.CurrentDirectory); //pasta do log
 
         bool wStart, wReset = false; //booleanas de escrita
-        bool rBusy, rError, rEmergency, rStart; //booleanas de leitura
+        bool rBusy, rError, rEmergency, rStart, rChegouOpaca, rChegouTransp; //booleanas de leitura
 
         List<Control> readControls; //lista de controles associados à leitura em tempo real do OPC
         Timer timerLog, timerUI; //timer do log de evento
@@ -42,22 +42,15 @@ namespace Trabalho3_Sistemas_Supervisorios
         {
             InitializeComponent();
 
-            AdjustControls();
-
             MoveBigLogs();
 
             ConfigureTimers();
 
             readControls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
 
-            
             _configManager = new ConfigManager();
-            var tupleTotalizers = _configManager.GetTotalizers();
-            countGeralOpacas = tupleTotalizers.Item1;
-            countGeralTransp = tupleTotalizers.Item2;
-            textBoxCountGeralOpacas.Text = tupleTotalizers.Item1.ToString();
-            textBoxCountGeralTransp.Text = tupleTotalizers.Item2.ToString();
 
+            AdjustControls();
 
             _opcManager = new OpcManager(_configManager);
             _opcManager.OnReadManager += _opcManager_OnReadManager;
@@ -112,6 +105,16 @@ namespace Trabalho3_Sistemas_Supervisorios
                 stateEmergencyLed = false;
                 pictureBoxEmergency.Image = Resources.lig;
             }
+
+            ToggleLabel(rBusy, labelBusy);
+            ToggleLabel(rChegouOpaca, labelChegouOpaca);
+            ToggleLabel(rChegouTransp, labelChegouTransp);
+
+        }
+
+        private bool ToggleLabel(bool variable, Label label)
+        {
+            return variable ? label.Visible = true : label.Visible = false;
         }
 
         public void TogglePictureBox()
@@ -143,17 +146,17 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(0)) //BUSY - READ ALARM
             {
-                rBusy = CheckAlarm(itemValue);
+                rBusy = CheckBoolean(itemValue);
             }
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(1)) //EMERGENCY - READ ALARM
             {
-                rEmergency = CheckAlarm(itemValue);
+                rEmergency = CheckBoolean(itemValue);
             }
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(2)) //ERROR - READ ALARM
             {
-                rError = CheckAlarm(itemValue);
+                rError = CheckBoolean(itemValue);
             }
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(3)) //NUM OPACAS - READ
@@ -166,14 +169,25 @@ namespace Trabalho3_Sistemas_Supervisorios
                 SetText(itemValue.Value.ToString(), readControls[1]);
             }
 
-            if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(7)) //START
+            if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(5)) // CHEGOU OPACA - READ
             {
-                rStart = CheckAlarm(itemValue);
+                rChegouOpaca = CheckBoolean(itemValue);
             }
+
+            if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(6)) // CHEGOU TRANSP - READ
+            {
+                rChegouTransp = CheckBoolean(itemValue);
+            }
+
+            if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(7)) //START - READ/WRITE
+            {
+                rStart = CheckBoolean(itemValue);
+            }
+            
         }
 
 
-        public bool CheckAlarm(OpcDaItemValue alarm) //checa estado dos alarmes
+        public bool CheckBoolean(OpcDaItemValue alarm) //checa estado dos alarmes
         {
             bool val;
             var success = bool.TryParse(alarm.Value.ToString(), out val);
@@ -198,7 +212,6 @@ namespace Trabalho3_Sistemas_Supervisorios
                 control.Text = text;
             }
         }
-
 
         private async void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -246,6 +259,16 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         public void AdjustControls() //centraliza os controles na interface
         {
+
+            var tupleTotalizers = _configManager.GetTotalizers();
+            countGeralOpacas = tupleTotalizers.Item1;
+            countGeralTransp = tupleTotalizers.Item2;
+            textBoxCountGeralOpacas.Text = tupleTotalizers.Item1.ToString();
+            textBoxCountGeralTransp.Text = tupleTotalizers.Item2.ToString();
+            labelBusy.Visible = false;
+
+            //
+
             pictureBoxEmergency.Image = Resources.lig;
             pictureBoxOnOff.Image = Resources.desl;
 
@@ -254,6 +277,9 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             labelCountGeral.TextAlign = ContentAlignment.MiddleLeft;
             labelCountGeral.Location = new Point((panel1.Width / 2 - labelCountGeral.Width / 2), labelCountGeral.Location.Y);
+
+            labelBusy.TextAlign = ContentAlignment.MiddleLeft;
+            labelBusy.Location = new Point((panel1.Width / 2 - labelBusy.Width / 2), labelBusy.Location.Y);
         }
     }
 }
