@@ -59,9 +59,9 @@ namespace Trabalho3_Sistemas_Supervisorios
             Logger.AddSingleLog(0, "Application started", DateTime.Now, Logger.Status.Normal);
         }
 
-        private void _opcManager_OnReadManager(object sender, OpcDaItemValue valuesFromManager) //evento disparado ao receber valores lidos
+        private void _opcManager_OnReadManager(object sender, OpcDaItemValue valueFromManager) //evento disparado ao receber valores lidos
         {
-            CheckReceivedValues(valuesFromManager); 
+            if(valueFromManager != null) CheckReceivedValues(valueFromManager); 
         }
 
         public void MoveBigLogs() //move grandes arquivos de log para o desktop
@@ -161,12 +161,12 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(3)) //NUM OPACAS - READ
             {
-                SetText(itemValue.Value.ToString(), readControls[0]);
+                SetText(itemValue.Value?.ToString(), readControls[0]);
             }
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(4)) //NUM TRANSP - READ
             {
-                SetText(itemValue.Value.ToString(), readControls[1]);
+                SetText(itemValue.Value?.ToString(), readControls[1]);
             }
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(5)) // CHEGOU OPACA - READ
@@ -185,7 +185,6 @@ namespace Trabalho3_Sistemas_Supervisorios
             }
             
         }
-
 
         public bool CheckBoolean(OpcDaItemValue alarm) //checa estado dos alarmes
         {

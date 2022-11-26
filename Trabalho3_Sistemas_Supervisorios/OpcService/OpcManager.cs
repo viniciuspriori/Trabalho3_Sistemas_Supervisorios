@@ -123,9 +123,9 @@ namespace Trabalho3_Sistemas_Supervisorios.OpcService
             {
                 if (result.Error.Failed)
                 {
-                    MessageBox.Show($"{result.Error}", "Application will close");
-                    Logger.AddSingleLog(-100, "Application is closing", DateTime.Now, Logger.Status.Error);
-                    Environment.Exit(0);
+                    MessageBox.Show($"{result.Error}", "Tag Error");
+                    Logger.AddSingleLog(-100, "Item Definition Error", DateTime.Now, Logger.Status.Error);
+                    //Environment.Exit(0);
                 }
             }
         }
