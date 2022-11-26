@@ -189,14 +189,18 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         public bool CheckBoolean(OpcDaItemValue alarm) //checa estado dos alarmes
         {
-            bool val;
-            var success = bool.TryParse(alarm.Value.ToString(), out val);
-
-            if(success)
+            if (alarm.Value != null)
             {
-                return val;
-            }
+                bool val;
+                var success = bool.TryParse(alarm.Value.ToString(), out val);
 
+                if (success)
+                {
+                    return val;
+                }
+
+                return false;
+            }
             return false;
         }
 

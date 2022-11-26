@@ -19,22 +19,23 @@ namespace Trabalho3_Sistemas_Supervisorios.Config
         public void Default()
         {
             ServerName = "Kepware.KEPServerEX.V6";
-            DeviceName = "Channel1.Device1";
+            DeviceName = "OPC-Esteira.S1212DCDCDC";
             TotalizadorOpaca = 0;
             TotalizadorTransp = 0;
 
             Tags = new Dictionary<int, string>()
             {
-                [0] = "Busy", //bool (READ)
-                [1] = "Emergency", //bool (READ)
-                [2] = "Error",  //bool (READ)
-                [3] = "NumOpcOpaque", //word (READ)
-                [4] = "NumTransp", //word (READ)
-                [5] = "Opaque", //bool (READ)
-                [6] = "Transparent",//bool (READ)
-                [7] = "Start", //bool (WRITE)
-                [8] = "Reset" //bool (WRITE)
+                [0] = "opcOcupada", //bool (READ) BUSY
+                [1] = "Emergency", //bool (READ) EMERGENCY
+                [2] = "opcError",  //bool (READ)
+                [3] = "opcNopaca", //word (READ)
+                [4] = "opcNTransp", //word (READ)
+                [5] = "opcOpaca", //bool OPACA (READ)
+                [6] = "opcTransp",//bool TRANSP (READ)
+                [7] = "opcStart", //bool (WRITE)
+                [8] = "opcReset" //bool (WRITE)
             };
+
         }
     }
 

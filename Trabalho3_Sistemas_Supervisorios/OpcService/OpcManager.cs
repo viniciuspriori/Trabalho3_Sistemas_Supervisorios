@@ -79,7 +79,7 @@ namespace Trabalho3_Sistemas_Supervisorios.OpcService
         public void TryConnect()
         {
             var count = 0;
-            while (!server.IsConnected && count < 3) //try connect up to 3 times, if can't, close application
+            while (!server.IsConnected && count < 2) //try connect up to 2 times, if can't, close application
             {
                 try
                 {
@@ -88,12 +88,11 @@ namespace Trabalho3_Sistemas_Supervisorios.OpcService
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.Message);
-                    Thread.Sleep(500);
+                    MessageBox.Show("Server is not connecting. Possibly wrong address.");
                 }
             }
 
-            if(count>3)
+            if(count>2)
             {
                 Logger.AddSingleLog(-1, "Application Closing", DateTime.Now, Logger.Status.Error);
                 Environment.Exit(0);

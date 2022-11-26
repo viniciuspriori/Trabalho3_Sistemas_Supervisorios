@@ -61,9 +61,9 @@ namespace Trabalho3_Sistemas_Supervisorios.Config
             }
             else
             {
-                var newConfig = new ConfigModel();
-                newConfig.Default();
-                return newConfig;
+                ConfigModel.Default();
+                SaveConfigModel();
+                return ConfigModel;
             }
         }
 
