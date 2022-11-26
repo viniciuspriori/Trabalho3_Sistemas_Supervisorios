@@ -53,6 +53,8 @@ namespace Trabalho3_Sistemas_Supervisorios
             
             _configManager = new ConfigManager();
             var tupleTotalizers = _configManager.GetTotalizers();
+            countGeralOpacas = tupleTotalizers.Item1;
+            countGeralTransp = tupleTotalizers.Item2;
             textBoxCountGeralOpacas.Text = tupleTotalizers.Item1.ToString();
             textBoxCountGeralTransp.Text = tupleTotalizers.Item2.ToString();
 
