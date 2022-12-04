@@ -152,7 +152,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             }
         }
 
-        private void CheckReceivedValues(OpcDaItemValue itemValue) //checa os valores recebidos e os distribui para a interface
+        private void CheckReceivedValues(OpcDaItemValue itemValue) //checa os valores recebidos
         {
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(0)) //BUSY - READ ALARM

@@ -1,0 +1,17 @@
+{
+  "DeviceName": "OPC-Esteira.S1212DCDCDC",
+  "ServerName": "Kepware.KEPServerEX.V6",
+  "TotalizadorOpaca": 0,
+  "TotalizadorTransp": 0,
+  "Tags": {
+    "0": "opcOcupada",
+    "1": "Emergency",
+    "2": "opcError",
+    "3": "opcNopaca",
+    "4": "opcNTransp",
+    "5": "opcOpaca",
+    "6": "opcTransp",
+    "7": "opcStart",
+    "8": "opcReset"
+  }
+}
