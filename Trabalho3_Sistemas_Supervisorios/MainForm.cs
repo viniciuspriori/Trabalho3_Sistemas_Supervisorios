@@ -32,10 +32,10 @@ namespace Trabalho3_Sistemas_Supervisorios
         bool wStart, wReset = false; //booleanas de escrita
         bool rBusy, rError, rEmergency, rStart, rChegouOpaca, rChegouTransp; //booleanas de leitura
 
-        List<Control> readControls; //lista de controles associados à leitura em tempo real do OPC
         Timer timerLog, timerUI; //timer do log de evento
 
         int countGeralOpacas, countGeralTransp; //contadores gerais
+        int countOpacas, countTransp, lastCountOpacas, lastCountTransp;
         bool stateEmergencyLed;
 
         public MainForm()
@@ -45,8 +45,6 @@ namespace Trabalho3_Sistemas_Supervisorios
             MoveBigLogs();
 
             ConfigureTimers();
-
-            readControls = new List<Control> { textBoxCountOpacas, textBoxCountTransp };
 
             _configManager = new ConfigManager();
 
@@ -110,6 +108,8 @@ namespace Trabalho3_Sistemas_Supervisorios
             ToggleLabel(rChegouOpaca, labelChegouOpaca);
             ToggleLabel(rChegouTransp, labelChegouTransp);
 
+            textBoxCountGeralOpacas.Text = countGeralOpacas.ToString();
+            textBoxCountGeralTransp.Text = countGeralTransp.ToString();
         }
 
         private bool ToggleLabel(bool variable, Label label)
@@ -161,12 +161,45 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(3)) //NUM OPACAS - READ
             {
-                SetText(itemValue.Value?.ToString(), readControls[0]);
+                if(itemValue.Value != null)
+                {
+                    countOpacas = Convert.ToInt32(itemValue.Value);
+                    SetText(countOpacas.ToString(), textBoxCountOpacas);
+
+                    if(countOpacas > countGeralOpacas)
+                    {
+                        countGeralOpacas = countOpacas;
+                        lastCountOpacas = countOpacas;
+                    }
+
+                    if (countOpacas > lastCountOpacas)
+                    {
+                        countGeralOpacas++;
+                        lastCountOpacas = countOpacas;
+                    }
+                }
+
             }
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(4)) //NUM TRANSP - READ
             {
-                SetText(itemValue.Value?.ToString(), readControls[1]);
+                if (itemValue.Value != null)
+                {
+                    countTransp = Convert.ToInt32(itemValue.Value);
+                    SetText(countTransp.ToString(), textBoxCountTransp);
+
+                    if(countTransp > countGeralTransp)
+                    {
+                        countGeralTransp = countTransp;
+                        lastCountTransp = countTransp;
+                    }
+
+                    if (countTransp > lastCountTransp)
+                    {
+                        countGeralTransp++;
+                        lastCountTransp = countTransp;
+                    }
+                }
             }
 
             if (itemValue.Item.ItemId == _configManager.GetTagAddressByIndex(5)) // CHEGOU OPACA - READ
@@ -238,25 +271,16 @@ namespace Trabalho3_Sistemas_Supervisorios
 
         private void buttonReset_Click(object sender, EventArgs e) //atualiza o estado de reset ao botão ser pressionado e escreve a tag
         {
-            wReset = !wReset;
+            wReset = true;
 
-            if (wReset == true)
-            {
-                GetValuesFromTextBoxes();
-            }
-
+            UpdateTotalizers();
+            
             _opcManager.Write(new object[] { wStart, wReset });
 
         }
 
-        public void GetValuesFromTextBoxes() //contagem de totalizadores
+        public void UpdateTotalizers() //contagem de totalizadores
         {
-            countGeralOpacas += int.Parse(textBoxCountOpacas.Text);
-            textBoxCountGeralOpacas.Text = countGeralOpacas.ToString();
-
-            countGeralTransp += int.Parse(textBoxCountTransp.Text);
-            textBoxCountGeralTransp.Text = countGeralTransp.ToString();
-
             _configManager.UpdateTotalizers(countGeralOpacas, countGeralTransp); //alimenta os totalizadores no modelo
         }
 
