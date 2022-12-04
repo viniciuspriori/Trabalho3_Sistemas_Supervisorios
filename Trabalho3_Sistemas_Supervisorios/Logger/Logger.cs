@@ -22,7 +22,7 @@ namespace Trabalho3_Sistemas_Supervisorios
             {
                 Id = id,
                 Message = message,
-                Timestamp = time.ToString("hh:mm:ss"),
+                Timestamp = time.ToString("HH:mm:ss"),
                 Status = Enum.GetName(status.GetType(), status)
         });
         }

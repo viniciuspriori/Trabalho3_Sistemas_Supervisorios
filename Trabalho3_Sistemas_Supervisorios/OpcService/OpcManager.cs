@@ -119,14 +119,20 @@ namespace Trabalho3_Sistemas_Supervisorios.OpcService
 
             OpcDaItemResult[] results = group.AddItems(listDefintions);
 
+            bool HasError = false;
             foreach (OpcDaItemResult result in results)
             {
                 if (result.Error.Failed)
                 {
-                    MessageBox.Show($"{result.Error}", "Tag Error");
+                    HasError = true;
                     Logger.AddSingleLog(-100, "Item Definition Error", DateTime.Now, Logger.Status.Error);
                     //Environment.Exit(0);
                 }
+            }
+
+            if (HasError)
+            {
+                MessageBox.Show("Tag Error");
             }
         }
     }

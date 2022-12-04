@@ -2,7 +2,7 @@
   "DeviceName": "Channel1.Device1",
   "ServerName": "Kepware.KEPServerEX.V6",
   "TotalizadorOpaca": 0,
-  "TotalizadorTransp": 20,
+  "TotalizadorTransp": 0,
   "Tags": {
     "0": "Busy",
     "1": "Emergency",

@@ -57,9 +57,12 @@ namespace Trabalho3_Sistemas_Supervisorios.OpcService
                 {
                     var writeItems = GetWriteItems();
 
-                    object[] values = { wStart, wReset };
+                    if (writeItems.Count > 0)
+                    {
+                        object[] values = { wStart, wReset };
 
-                    HRESULT[] results = _group.Write(writeItems, values); //escreve itens no servidor
+                        HRESULT[] results = _group.Write(writeItems, values); //escreve itens no servidor
+                    }
                 }
             }
         }

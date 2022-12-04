@@ -35,7 +35,10 @@ namespace Trabalho3_Sistemas_Supervisorios.OpcService
         {
             while(IsRunning)
             {
-                OnReadGroup?.Invoke(this, _group.Read(_group.Items, OpcDaDataSource.Device).ToList()); //assim que houver leitura,
+                if (_group.Items.Count > 0)
+                {
+                    OnReadGroup?.Invoke(this, _group.Read(_group.Items, OpcDaDataSource.Device).ToList()); //assim que houver leitura, aciona evento
+                }
             }
         }
     }
