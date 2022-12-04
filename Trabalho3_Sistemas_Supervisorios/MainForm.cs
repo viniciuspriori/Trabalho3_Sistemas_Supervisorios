@@ -104,12 +104,23 @@ namespace Trabalho3_Sistemas_Supervisorios
                 pictureBoxEmergency.Image = Resources.lig;
             }
 
+            if (rStart == true)
+            {
+                buttonStart.Text = "Parar";
+            }
+            else
+            {
+                buttonStart.Text = "Iniciar";
+            }
+
             ToggleLabel(rBusy, labelBusy);
             ToggleLabel(rChegouOpaca, labelChegouOpaca);
             ToggleLabel(rChegouTransp, labelChegouTransp);
 
-            textBoxCountGeralOpacas.Text = countGeralOpacas.ToString();
-            textBoxCountGeralTransp.Text = countGeralTransp.ToString();
+            SetText(countGeralOpacas.ToString(), textBoxCountGeralOpacas);
+            SetText(countGeralTransp.ToString(), textBoxCountGeralTransp);
+            SetText(countOpacas.ToString(), textBoxCountOpacas);
+            SetText(countTransp.ToString(), textBoxCountTransp);
         }
 
         private bool ToggleLabel(bool variable, Label label)
@@ -164,7 +175,7 @@ namespace Trabalho3_Sistemas_Supervisorios
                 if(itemValue.Value != null)
                 {
                     countOpacas = Convert.ToInt32(itemValue.Value);
-                    SetText(countOpacas.ToString(), textBoxCountOpacas);
+                   // SetText(countOpacas.ToString(), textBoxCountOpacas);
 
                     if(countOpacas > countGeralOpacas)
                     {
@@ -172,11 +183,13 @@ namespace Trabalho3_Sistemas_Supervisorios
                         lastCountOpacas = countOpacas;
                     }
 
-                    if (countOpacas > lastCountOpacas)
+                    if (countOpacas - lastCountOpacas == 1)
                     {
                         countGeralOpacas++;
-                        lastCountOpacas = countOpacas;
                     }
+
+                    lastCountOpacas = countOpacas;
+
                 }
 
             }
@@ -186,7 +199,7 @@ namespace Trabalho3_Sistemas_Supervisorios
                 if (itemValue.Value != null)
                 {
                     countTransp = Convert.ToInt32(itemValue.Value);
-                    SetText(countTransp.ToString(), textBoxCountTransp);
+                    //SetText(countTransp.ToString(), textBoxCountTransp);
 
                     if(countTransp > countGeralTransp)
                     {
@@ -194,11 +207,13 @@ namespace Trabalho3_Sistemas_Supervisorios
                         lastCountTransp = countTransp;
                     }
 
-                    if (countTransp > lastCountTransp)
+                    if (countTransp - lastCountTransp == 1)
                     {
                         countGeralTransp++;
-                        lastCountTransp = countTransp;
                     }
+
+                    lastCountTransp = countTransp;
+
                 }
             }
 
@@ -255,6 +270,7 @@ namespace Trabalho3_Sistemas_Supervisorios
 
             _opcManager.Kill();
 
+            UpdateTotalizers();
             var taskModel = _configManager.SaveConfigModel();
             var taskLogger = Logger.SaveAsync(_loggerFolder);
 
@@ -266,6 +282,7 @@ namespace Trabalho3_Sistemas_Supervisorios
         private void buttonStart_Click(object sender, EventArgs e) //atualiza o estado de start ao botão ser pressionado e escreve a tag
         {
             wStart = !wStart;
+
             _opcManager.Write(new object[] { wStart, wReset });
         }
 
@@ -276,7 +293,6 @@ namespace Trabalho3_Sistemas_Supervisorios
             UpdateTotalizers();
             
             _opcManager.Write(new object[] { wStart, wReset });
-
         }
 
         public void UpdateTotalizers() //contagem de totalizadores
