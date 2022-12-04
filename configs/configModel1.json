@@ -5,10 +5,10 @@
   "TotalizadorTransp": 0,
   "Tags": {
     "0": "opcOcupada",
-    "1": "Emergency",
-    "2": "opcError",
+    "1": "opcEmergencia",
+    "2": "opcErro",
     "3": "opcNopaca",
-    "4": "opcNTransp",
+    "4": "opcNtransp",
     "5": "opcOpaca",
     "6": "opcTransp",
     "7": "opcStart",
